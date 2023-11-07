@@ -174,6 +174,21 @@ preprare_spec2017()
     fi
 }
 
+cpuname()
+{
+    ret=`sudo lscpu | grep -i "AmpereOne"`
+    if [ "$ret" != "" ];then
+        return "one"
+    fi
+
+    ret=`sudo lscpu | grep -i "Altra"`
+    if [ "$ret" != "" ];then
+        return "altra"
+    fi
+
+    return "host"
+}
+
 if [ "$1" == "build_edk2" ];then
     rm -rf /root/workloads/edk2_build
     source scripts/common-aarch64.sh
