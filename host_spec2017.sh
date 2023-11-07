@@ -7,6 +7,7 @@ if [ $PARAM_NUM -lt 3 ];then
     showHelp qemu
     exit 0
 fi
+result_dir=${cpu_name}"_"`uname -r`
 
 host_test()
 {

@@ -3,6 +3,7 @@ ADDR=127.0.0.1
 PORT=3333
 USER=cloud
 PASS=cloud123
+cpu_name="host"
 WORKLOADS_DIR=$PWD/workloads
 LOG_DIR=$WORKLOADS_DIR/latest
 
@@ -30,6 +31,21 @@ if [ ! -e $LOG_DIR ];then
         mkdir -p $LOG_DIR
     fi
 fi
+
+get_cpu_name()
+{
+    ret=`sudo lscpu | grep -i "AmpereOne"`
+    if [ "$ret" != "" ];then
+        cpu_name="one"
+    fi
+    
+    ret=`sudo lscpu | grep -i "Altra"`
+    if [ "$ret" != "" ];then
+        cpu_name="altra"
+    fi
+}
+
+get_cpu_name
 
 showHelp()
 {
@@ -172,21 +188,6 @@ preprare_spec2017()
         ssh_command "cd /home/amptest/ampere_spec2017/spec2017 && echo yes | sudo ./install.sh "
         ssh_command "cd /home/amptest/ampere_spec2017/ && sudo ./high_perf.sh "
     fi
-}
-
-cpuname()
-{
-    ret=`sudo lscpu | grep -i "AmpereOne"`
-    if [ "$ret" != "" ];then
-        return "one"
-    fi
-
-    ret=`sudo lscpu | grep -i "Altra"`
-    if [ "$ret" != "" ];then
-        return "altra"
-    fi
-
-    return "host"
 }
 
 if [ "$1" == "build_edk2" ];then
