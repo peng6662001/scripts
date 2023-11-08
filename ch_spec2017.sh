@@ -21,7 +21,8 @@ if [ $cpu_name == "one" ];then
 fi
 
 if [ "$ACTION" == "copies_intrate" ];then
-    scp_push_ch full_test.sh "/home/amptest/ampere_spec2017/"
+    scp_pushi_ch full_test.sh "/home/cloud/"
+    ssh_command_ch "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"
     ssh_command_ch "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
     ssh_command_ch "cd /home/amptest/ampere_spec2017/ && sudo rm -r spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
 else
