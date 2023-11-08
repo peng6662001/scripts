@@ -25,6 +25,7 @@ host_test()
     fi
 
     if [ "$ACTION" == "copies_intrate" ];then
+	sudo chmod a+x full_test.sh
         ./full_test.sh
     else
         ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION

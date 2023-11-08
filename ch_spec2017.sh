@@ -21,7 +21,8 @@ if [ $cpu_name == "one" ];then
 fi
 
 if [ "$ACTION" == "copies_intrate" ];then
-    scp_command_ch full_test.sh "/home/amptest/ampere_spec2017/"
+    scp_push_ch full_test.sh "/home/amptest/ampere_spec2017/"
+    ssh_command_ch "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
     ssh_command_ch "cd /home/amptest/ampere_spec2017/ && sudo rm -r spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
 else
     ssh_command_ch "cd /home/amptest/ampere_spec2017/ && sudo rm -r spec2017/result && sudo ./high_perf.sh  && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION"
@@ -29,7 +30,7 @@ fi
 
 result_dir=${cpu_name}"_clh_"`ssh_command_ch 'uname -r'`
 ssh_command_ch "sudo mv /home/amptest/ampere_spec2017/spec2017/result /home/amptest/ampere_spec2017/spec2017/$result_dir"
-scp_command_ch "/home/amptest/ampere_spec2017/spec2017/$result_dir" $LOG_DIR
+scp_pull_ch "/home/amptest/ampere_spec2017/spec2017/$result_dir" $LOG_DIR
 killall perf
 killall cloud-hypervisor
 

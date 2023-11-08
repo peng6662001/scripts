@@ -62,9 +62,14 @@ ssh_command()
     sshpass -p $PASS ssh $USER@127.0.0.1 -p 3333 -o "StrictHostKeyChecking no" $1
 }
 
-scp_command()
+scp_pull()
 {
     sshpass -p $PASS scp -P $PORT -o "StrictHostKeyChecking no" -r $USER@$ADDR:$1 $2
+}
+
+scp_push()
+{
+    sshpass -p $PASS scp -P $PORT -o "StrictHostKeyChecking no" -r $1 $USER@$ADDR:$2
 }
 
 ssh_command_ch()
@@ -72,9 +77,14 @@ ssh_command_ch()
     sshpass -p $PASS ssh $USER@192.168.249.2 -o "StrictHostKeyChecking no" $1
 }
 
-scp_command_ch()
+scp_pull_ch()
 {
     sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $USER@192.168.249.2:$1 $2
+}
+
+scp_push_ch()
+{
+    sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $1 $USER@192.168.249.2:$2
 }
 
 # Checkout source code of a GIT repo with specified branch and commit
