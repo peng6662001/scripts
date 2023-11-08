@@ -21,12 +21,12 @@ if [ $cpu_name == "one" ];then
 fi
 
 if [ "$ACTION" == "copies_intrate" ];then
-    scp_pushi_ch full_test.sh "/home/cloud/"
+    scp_push_ch full_test.sh "/home/cloud/"
     ssh_command_ch "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"
     ssh_command_ch "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
-    ssh_command_ch "cd /home/amptest/ampere_spec2017/ && sudo rm -r spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
+    ssh_command_ch "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
 else
-    ssh_command_ch "cd /home/amptest/ampere_spec2017/ && sudo rm -r spec2017/result && sudo ./high_perf.sh  && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION"
+    ssh_command_ch "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh  && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION"
 fi
 
 result_dir=${cpu_name}"_clh_"`ssh_command_ch 'uname -r'`

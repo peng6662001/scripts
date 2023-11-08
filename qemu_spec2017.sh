@@ -47,9 +47,9 @@ if [ "$ACTION" == "copies_intrate" ];then
     scp_push full_test.sh "/home/cloud/"
     ssh_command "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"
     ssh_command "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
-    ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -r spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
+    ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
 else
-    ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -r spec2017/result && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION"
+    ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION"
 fi
 result_dir=${cpu_name}"_qemu_"`ssh_command 'uname -r'`
 ssh_command "sudo mv /home/amptest/ampere_spec2017/spec2017/result /home/amptest/ampere_spec2017/spec2017/$result_dir"
