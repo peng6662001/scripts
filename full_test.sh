@@ -1,5 +1,5 @@
 #!/bin/bash
-COPYS=32
+COPYS=16
 
 while ((COPYS<=32))
 do

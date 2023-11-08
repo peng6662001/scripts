@@ -18,6 +18,7 @@ host_test()
 
     pushd /home/amptest/ampere_spec2017/
     rm -rf spec2017/result
+    rm -rf spec2017/$result_dir
     ./high_perf.sh
 
     if [ $cpu_name == "one" ];then
