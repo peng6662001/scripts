@@ -12,6 +12,7 @@ dir = sys.argv[1]
 
 def read_csv(file):
     perf_data = {}
+
     csv_file = open(file)
     reader_obj = csv.reader(csv_file)
     csv_data = list(reader_obj)
@@ -161,7 +162,10 @@ def cal_data(full_data):
     return line
 
 
-def parse_all(dir):
+def parse_dir(dir):
+    if not os.path.exists(os.path.join(dir, 'host.csv')):
+        return
+
     data_host = read_csv(os.path.join(dir, 'host.csv'))
     res_host = cal_data(data_host)
     full_list['host'] = res_host
@@ -176,11 +180,15 @@ def parse_all(dir):
     host_clh_diff = cal_diff(res_host, res_clh)
     full_list['Host_CLH_Diff'] = host_clh_diff
 
+def parse_all(dir):
+    for root, dirs, files in os.walk(dir):
+        for path in dirs:
+            parse_dir(os.path.join(root,path))
+
     df = pd.DataFrame(full_list)
 
     print(df)
     return df
-
 
 df = parse_all(dir)
 
@@ -192,4 +200,5 @@ df = parse_all(dir)
 #fig2, ax2 = plt.subplots()
 #df.iloc[11:-2, :2].plot(kind='bar', ax=ax2)
 #plt.show()
-df.to_csv('full_data.csv', encoding='utf-8')
+if df is not None:
+    df.to_csv('perf_data.csv', encoding='utf-8')
