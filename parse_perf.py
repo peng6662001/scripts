@@ -179,6 +179,7 @@ def parse_dir(dir):
     full_list['Host_Qemu_Diff'] = host_qemu_diff
     host_clh_diff = cal_diff(res_host, res_clh)
     full_list['Host_CLH_Diff'] = host_clh_diff
+    return full_list
 
 def parse_all(dir):
     for root, dirs, files in os.walk(dir):

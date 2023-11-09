@@ -22,3 +22,20 @@ workloads/qemu_520.omnetpp_r_20231023_190542_vm_base_parse.csv
 result_altra_ch_6.3.0-rc4_org_i3_copies_1030
 result_altra_			ch_					6.3.0-rc4_org_		i3_					copies_				1030   
 	   altra server		cloud-hypervisor 	kernel on vm		iteration 3			multi copies		tested date
+
+
+python parse_spec2017 servers
+check full_data.csv
+
+Logs directory:
+servers/
+└── log_505.mcf_r_20231108_232550
+    ├── clh.csv
+    ├── host.csv
+    ├── one_6.6.0-rc6
+    │   ├── CPU2017.001.intrate.refrate.csv
+    ├── one_clh_6.6.0-rc6
+    │   ├── CPU2017.001.intrate.refrate.csv
+    ├── one_qemu_6.6.0-rc6
+    │   ├── CPU2017.001.intrate.refrate.csv
+    └── qemu.csv

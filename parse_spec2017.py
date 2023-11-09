@@ -2,6 +2,7 @@
 import csv, sys, os
 import pandas as pd
 
+import parse_perf
 
 full_list = {}
 
@@ -36,7 +37,8 @@ def read_interation(df, res):
         iter += 1
     return copies
 
-def parse_spec2017_csv(f):
+
+def parse_spec2017_csv(pardir, f):
     with open(f, encoding='UTF-8') as temp_f:
         # get No of columns in each line
         col_count = [len(l.split(",")) for l in temp_f.readlines()]
@@ -45,9 +47,10 @@ def parse_spec2017_csv(f):
     datas = pd.read_csv(f, header=None, skip_blank_lines=True, names=column_names)
     df = datas.loc[:, 'A':'L'].iloc[0:100].fillna(' ')
     res = {}
+    res['dir'] = pardir[-15:]
     copies = read_interation(df, res)
     res['SPECrate2017_int_base'] = get_value(df, 'B', 'SPECrate2017_int_base')
-    res['SPECrate2017_int_peak'] = get_value(df, 'B', 'SPECrate2017_int_peak')
+    #res['SPECrate2017_int_peak'] = get_value(df, 'B', 'SPECrate2017_int_peak')
     res['copies'] = copies
 
     path = os.path.dirname(f)
@@ -85,24 +88,37 @@ def dirAll(pathname):
                     files.append(dirname + os.sep + baseName)
 
 
-dirAll(dir_name)
-for f in files:
-    baseName = os.path.basename(f)
-    if baseName.endswith(".csv") and baseName.startswith("CPU2017"):
-        parse_spec2017_csv(f)
+# dirAll(dir_name)
+# for f in files:
+#     baseName = os.path.basename(f)
+#     if baseName.endswith(".csv") and baseName.startswith("CPU2017"):
+#         parse_spec2017_csv(f)
+
 
 # for dirpath, dirnames, filenames in os.walk(dir_name):
 #     for file in filenames:
 #         if file.endswith(".csv") and file.startswith("CPU2017"):
 #             parse_spec2017_csv(dir, os.path.join(os.path.abspath(dir), file))
 
-# for file in os.listdir(dir_name):
-#     print(file)
-#     file_path = os.path.join(dir_name,file)
-#     if os.path.isdir(file_path):
-#         parse_dir(file_path)
-#
-# print("Complete")
+def parse_unit(dir_name):
+    dirAll(dir_name)
+    for f in files:
+        base_name = os.path.basename(f)
+        if base_name.endswith(".csv") and base_name.startswith("CPU2017"):
+            parse_spec2017_csv(os.path.basename(dir_name), f)
+
+    perf_list = parse_perf.parse_dir(dir_name)
+    if perf_list is not None:
+        full_list.update(perf_list)
+    print(perf_list)
+
+
+for temp in os.listdir(dir_name):
+    file_path = os.path.join(dir_name,temp)
+    if os.path.isdir(file_path):
+        parse_unit(file_path)
+
+print("Complete")
 
 full_df = pd.DataFrame(full_list)
 full_df.to_csv('full_data.csv', encoding='utf-8')

@@ -2,3 +2,4 @@ workloads
 tlog
 .idea
 *.csv
+__pycache__
