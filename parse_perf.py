@@ -73,9 +73,9 @@ def cal_diff(line_host, line_vm):
     line['stall_be_cache'] = ''
     line['stall_be_resource'] = ''
     line['CPI'] = line_vm['CPI'] - line_host['CPI']
-    line['fe_stall/IR'] = line_vm['fe_stall/IR'] - line_host['fe_stall/IR']
+
     line['be_stall/IR'] = line_vm['be_stall/IR'] - line_host['be_stall/IR']
-    if 'stall_slot_backend' in line_host:
+    if 'stall_slot_backend' in line_host and line_host['stall_slot_backend'] != '':
         line['retiring/IR'] = line_vm['retiring/IR'] - line_host['retiring/IR']
         line['lost/IR'] = line_vm['lost/IR'] - line_host['lost/IR']
         line['_be_core/IR'] = line_vm['_be_core/IR'] - line_host['_be_core/IR']
@@ -84,6 +84,7 @@ def cal_diff(line_host, line_vm):
         line['__be_tlb/IR'] = line_vm['__be_tlb/IR'] - line_host['__be_tlb/IR']
         line['be_stall_mem/IR'] = line_vm['be_stall_mem/IR'] - line_host['be_stall_mem/IR']
         line['be_stall_resource/IR'] = line_vm['be_stall_resource/IR'] - line_host['be_stall_resource/IR']
+        line['fe_stall/IR'] = line_vm['fe_stall/IR'] - line_host['fe_stall/IR']
     else:
         line['retiring/IR'] = ''
         line['lost/IR'] = ''
@@ -93,8 +94,9 @@ def cal_diff(line_host, line_vm):
         line['__be_tlb/IR'] = ''
         line['be_stall_mem/IR'] = ''
         line['be_stall_resource/IR'] = ''
+        line['fe_stall/IR'] = ''
 
-    if 'inst_spec/IR' in line_host:
+    if 'inst_spec/IR' in line_host and line_host['inst_spec/IR'] != '':
         line['inst_spec/IR'] = line_vm['inst_spec/IR'] - line_host['inst_spec/IR']
         line['inst_retired/IR'] = line_vm['inst_retired/IR'] - line_host['inst_retired/IR']
     else:
@@ -206,8 +208,8 @@ def cal_data(full_data):
         line['inst_spec/IR'] = ''
         line['inst_retired/IR'] = ''
     else:
-        line['inst_spec/IR'] = float(stall_be_mem_sum) / instructions_sum
-        line['inst_retired/IR'] = float(stall_be_resource_sum) / instructions_sum
+        line['inst_spec/IR'] = float(inst_spec_sum) / instructions_sum
+        line['inst_retired/IR'] = float(inst_retired_sum) / instructions_sum
 
     if cycles_H_sum != 0:
         line['cycles_H'] = cycles_H_sum
@@ -219,36 +221,41 @@ def cal_data(full_data):
     return line
 
 
-def parse_dir(dir):
+def parse_dir(parentDir,dir):
     if not os.path.exists(os.path.join(dir, 'host.csv')):
         return
 
     data_host = read_csv(os.path.join(dir, 'host.csv'))
     res_host = cal_data(data_host)
-    full_list['host'] = res_host
+    full_list['host_' + parentDir] = res_host
     data_qemu = read_csv(os.path.join(dir, 'qemu.csv'))
     res_qemu = cal_data(data_qemu)
-    full_list['qemu'] = res_qemu
+    full_list['qemu_' + parentDir] = res_qemu
     data_clh = read_csv(os.path.join(dir, 'clh.csv'))
     res_clh = cal_data(data_clh)
-    full_list['clh'] = res_clh
+    full_list['clh_' + parentDir] = res_clh
     host_qemu_diff = cal_diff(res_host, res_qemu)
-    full_list['Host_Qemu_Diff'] = host_qemu_diff
+    full_list['H_Q_Diff_' + parentDir] = host_qemu_diff
     host_clh_diff = cal_diff(res_host, res_clh)
-    full_list['Host_CLH_Diff'] = host_clh_diff
+    full_list['H_C_Diff_' + parentDir] = host_clh_diff
     return full_list
 
 def parse_all(dir):
+    num = 1000
     for root, dirs, files in os.walk(dir):
         for path in dirs:
-            parse_dir(os.path.join(root,path))
+            parse_dir(str(num),os.path.join(root,path))
+            num += 1
 
     df = pd.DataFrame(full_list)
 
     print(df)
     return df
 
-df = parse_all(dir)
+# df = parse_all(dir)
+# if df is not None:
+#     df.to_csv('perf_data.csv', encoding='utf-8')
+
 
 #plt.rcParams.update({'figure.subplot.bottom': 0.35})
 
@@ -258,5 +265,3 @@ df = parse_all(dir)
 #fig2, ax2 = plt.subplots()
 #df.iloc[11:-2, :2].plot(kind='bar', ax=ax2)
 #plt.show()
-if df is not None:
-    df.to_csv('perf_data.csv', encoding='utf-8')

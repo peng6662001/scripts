@@ -47,14 +47,13 @@ def parse_spec2017_csv(pardir, f):
     datas = pd.read_csv(f, header=None, skip_blank_lines=True, names=column_names)
     df = datas.loc[:, 'A':'L'].iloc[0:100].fillna(' ')
     res = {}
-    res['dir'] = pardir[-15:]
     copies = read_interation(df, res)
     res['SPECrate2017_int_base'] = get_value(df, 'B', 'SPECrate2017_int_base')
     #res['SPECrate2017_int_peak'] = get_value(df, 'B', 'SPECrate2017_int_peak')
     res['copies'] = copies
 
     path = os.path.dirname(f)
-    full_list[os.path.basename(path) + '_' + str(copies)] = res
+    full_list[os.path.basename(path) + '_' + pardir + '_' + str(copies)] = res
 
 
 # def parse_dir(dir):
@@ -102,12 +101,13 @@ def dirAll(pathname):
 
 def parse_unit(dir_name):
     dirAll(dir_name)
+    parentDir=os.path.basename(dir_name)
     for f in files:
         base_name = os.path.basename(f)
         if base_name.endswith(".csv") and base_name.startswith("CPU2017"):
-            parse_spec2017_csv(os.path.basename(dir_name), f)
+            parse_spec2017_csv(parentDir[-15:], f)
 
-    perf_list = parse_perf.parse_dir(dir_name)
+    perf_list = parse_perf.parse_dir(parentDir[-15:],dir_name)
     if perf_list is not None:
         full_list.update(perf_list)
     print(perf_list)
