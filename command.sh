@@ -7,6 +7,21 @@ cpu_name="host"
 WORKLOADS_DIR=$PWD/workloads
 LOG_DIR=$WORKLOADS_DIR/latest
 
+showHelp()
+{
+    device=$1
+    echo -e "\nusage:"
+    echo "sudo ./${device}_spec2017.sh 1 4 500.perlbench_r 502.gcc_r 505.mcf_r 520.omnetpp_r 523.xalancbmk_r 525.x264_r 531.deepsjeng_r 541.leela_r 548.exchange2_r 557.xz_r"
+    echo "sudo ./${device}_spec2017.sh 1 4 intrate"
+    echo "sudo ./${device}_spec2017.sh 1 4 copies_intrate"
+    echo -e "\n1 means iteration,4 means copies,intrate means all actions,copies_intrate means 1,2,4,8,16,32 copies for all copies\n"
+    exit 1
+}
+
+if [ $# -lt 3 ];then
+    showHelp all
+fi
+
 if [ $EUID -ne 0 ]; then
   echo "Please use sudo to run this script."
   exit 1
@@ -50,16 +65,6 @@ get_cpu_name()
 }
 
 get_cpu_name
-
-showHelp()
-{
-    device=$1
-    echo -e "\nusage:"
-    echo "./${device}_spec2017.sh 1 4 500.perlbench_r 502.gcc_r 505.mcf_r 520.omnetpp_r 523.xalancbmk_r 525.x264_r 531.deepsjeng_r 541.leela_r 548.exchange2_r 557.xz_r"
-    echo "./${device}_spec2017.sh 1 4 intrate"
-    echo "./${device}_spec2017.sh 1 4 copies_intrate"
-    echo -e "\n1 means iteration,4 means copies,intrate means all actions,copies_intrate means 1,2,4,8,16,32 copies for all copies\n"
-}
 
 ssh_command()
 {
