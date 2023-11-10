@@ -3,7 +3,9 @@ PARAM_NUM=$#
 
 source command.sh $@
 
-showHelp host
+if [ $# -lt 3 ];then
+    showHelp host
+fi
 result_dir=${cpu_name}"_"`uname -r`
 
 host_test()

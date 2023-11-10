@@ -3,7 +3,9 @@ PARAM_NUM=$#
 
 source command.sh $@
 
-showHelp qemu
+if [ $# -lt 3 ];then
+    showHelp qemu
+fi
 
 create_disk()
 {
