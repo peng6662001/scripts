@@ -7,6 +7,10 @@ cpu_name="host"
 WORKLOADS_DIR=$PWD/workloads
 LOG_DIR=$WORKLOADS_DIR/latest
 
+if [ $EUID -ne 0 ]; then
+  echo "Please use sudo to run this script."
+  exit 1
+fi
 
 if [ "$1" == "log_dir" ];then
 	LOG_DIR=$2
