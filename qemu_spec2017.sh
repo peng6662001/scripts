@@ -3,9 +3,8 @@ PARAM_NUM=$#
 
 source command.sh $@
 
-if [ $PARAM_NUM -lt 3 ];then
+if [ $# -lt 3 ];then
     showHelp qemu
-    exit 0
 fi
 
 create_disk()
@@ -41,6 +40,9 @@ python cpu_affinity.py -s /tmp/qmp-test2 {1..40}
 
 if [ $cpu_name == "one" ];then
     perf stat -C 2 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,STALL_BACKEND_TLB:G,STALL_BACKEND_CACHE:G,STALL_BACKEND_MEM:G,mem_access:G,l1d_tlb:G,l1d_tlb_refill:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,rd80d:G,stall_slot_backend:G,op_spec:G,op_retired:G,STALL_BACKEND_RESOURCE:G -I 1000 -x , -o $vm_csv_name &
+fi
+if [ $cpu_name == "altra" ];then
+    perf stat -C 2 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,mem_access:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,inst_spec:G,inst_retired:G -I 1000 -x , -o $vm_csv_name &
 fi
 
 result_dir=${cpu_name}"_qemu_"`ssh_command 'uname -r'`
