@@ -3,10 +3,7 @@ PARAM_NUM=$#
 
 source command.sh $@
 
-if [ $PARAM_NUM -lt 3 ];then
-    showHelp ch
-    exit 0
-fi
+showHelp ch
 
 if [ ! -f $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw ];then
    ./qemu_spec2017.sh create_disk

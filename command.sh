@@ -18,10 +18,6 @@ showHelp()
     exit 1
 }
 
-if [ $# -lt 3 ];then
-    showHelp all
-fi
-
 if [ $EUID -ne 0 ]; then
   echo "Please use sudo to run this script."
   exit 1
