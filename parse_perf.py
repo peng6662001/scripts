@@ -49,6 +49,10 @@ def read_csv(file):
             a['stall_be_resource'] = int(row[1])
         elif row[3] == 'stall_backend' or row[3] == 'stall_backend:G':
             a['stall_backend'] = int(row[1])
+        elif row[3] == 'inst_spec' or row[3] == 'inst_spec:G':
+            a['inst_spec'] = int(row[1])
+        elif row[3] == 'inst_retired' or row[3] == 'inst_retired:G':
+            a['inst_retired'] = int(row[1])
         elif row[3] == 'cycles:H':
             a['cycles_H'] = int(row[1])
 
@@ -69,16 +73,35 @@ def cal_diff(line_host, line_vm):
     line['stall_be_cache'] = ''
     line['stall_be_resource'] = ''
     line['CPI'] = line_vm['CPI'] - line_host['CPI']
-    line['retiring/IR'] = line_vm['retiring/IR'] - line_host['retiring/IR']
-    line['lost/IR'] = line_vm['lost/IR'] - line_host['lost/IR']
     line['fe_stall/IR'] = line_vm['fe_stall/IR'] - line_host['fe_stall/IR']
     line['be_stall/IR'] = line_vm['be_stall/IR'] - line_host['be_stall/IR']
-    line['_be_core/IR'] = line_vm['_be_core/IR'] - line_host['_be_core/IR']
-    line['_be_memory/IR'] = line_vm['_be_memory/IR'] - line_host['_be_memory/IR']
-    line['__be_cache/IR'] = line_vm['__be_cache/IR'] - line_host['__be_cache/IR']
-    line['__be_tlb/IR'] = line_vm['__be_tlb/IR'] - line_host['__be_tlb/IR']
-    line['be_stall_mem/IR'] = line_vm['be_stall_mem/IR'] - line_host['be_stall_mem/IR']
-    line['be_stall_resource/IR'] = line_vm['be_stall_resource/IR'] - line_host['be_stall_resource/IR']
+    if 'stall_slot_backend' in line_host:
+        line['retiring/IR'] = line_vm['retiring/IR'] - line_host['retiring/IR']
+        line['lost/IR'] = line_vm['lost/IR'] - line_host['lost/IR']
+        line['_be_core/IR'] = line_vm['_be_core/IR'] - line_host['_be_core/IR']
+        line['_be_memory/IR'] = line_vm['_be_memory/IR'] - line_host['_be_memory/IR']
+        line['__be_cache/IR'] = line_vm['__be_cache/IR'] - line_host['__be_cache/IR']
+        line['__be_tlb/IR'] = line_vm['__be_tlb/IR'] - line_host['__be_tlb/IR']
+        line['be_stall_mem/IR'] = line_vm['be_stall_mem/IR'] - line_host['be_stall_mem/IR']
+        line['be_stall_resource/IR'] = line_vm['be_stall_resource/IR'] - line_host['be_stall_resource/IR']
+    else:
+        line['retiring/IR'] = ''
+        line['lost/IR'] = ''
+        line['_be_core/IR'] = ''
+        line['_be_memory/IR'] = ''
+        line['__be_cache/IR'] = ''
+        line['__be_tlb/IR'] = ''
+        line['be_stall_mem/IR'] = ''
+        line['be_stall_resource/IR'] = ''
+
+    if 'inst_spec/IR' in line_host:
+        line['inst_spec/IR'] = line_vm['inst_spec/IR'] - line_host['inst_spec/IR']
+        line['inst_retired/IR'] = line_vm['inst_retired/IR'] - line_host['inst_retired/IR']
+    else:
+        line['inst_spec/IR'] = ''
+        line['inst_retired/IR'] = ''
+
+
     line['cycles_H'] = ''
     line['cycles_H/cycles'] = ''
     return line
@@ -96,6 +119,8 @@ def cal_data(full_data):
     stall_be_mem_sum = 0.0
     stall_be_cache_sum = 0.0
     stall_be_resource_sum = 0.0
+    inst_spec_sum = 0.0
+    inst_retired_sum = 0.0
 
     for k in full_data.keys():
         a = full_data[k]
@@ -106,14 +131,21 @@ def cal_data(full_data):
         if 'cycles_H' in a:
             cycles_H_sum += a['cycles_H']
         instructions_sum += a['instructions']
-        stall_slot_backend_sum += a['stall_slot_backend']
-        op_spec_sum += a['op_spec']
-        op_retired_sum += a['op_retired']
+        if 'stall_slot_backend' in a:
+            stall_slot_backend_sum += a['stall_slot_backend']
+            op_spec_sum += a['op_spec']
+            op_retired_sum += a['op_retired']
+            stall_be_tlb_sum += a['stall_be_tlb']
+            stall_be_mem_sum += a['stall_be_mem']
+            stall_be_cache_sum += a['stall_be_cache']
+            stall_be_resource_sum += a['stall_be_resource']
+
         stall_be_sum += a['stall_backend']
-        stall_be_tlb_sum += a['stall_be_tlb']
-        stall_be_mem_sum += a['stall_be_mem']
-        stall_be_cache_sum += a['stall_be_cache']
-        stall_be_resource_sum += a['stall_be_resource']
+
+        if 'inst_spec' in a:
+            inst_spec_sum += a['inst_spec']
+            inst_retired_sum += a['inst_retired']
+
 
     # print(ret_file.read(), file=f)
 
@@ -123,35 +155,60 @@ def cal_data(full_data):
     str_sum += ',instructions_sum,' + str(instructions_sum) + ',stall_slot_backend_sum,' + str(stall_slot_backend_sum) + \
                ',op_spec_sum,' + str(op_spec_sum) + ',op_retired_sum,' + str(op_retired_sum) + \
                ',stall_be_tlb_sum,' + str(stall_be_tlb_sum) + ',stall_be_mem_sum,' + str(stall_be_mem_sum) + \
-               ',stall_be_cache_sum,' + str(stall_be_cache_sum) + ',stall_be_resource_sum,' + str(
-        stall_be_resource_sum) + \
+               ',stall_be_cache_sum,' + str(stall_be_cache_sum) + ',stall_be_resource_sum,' + str(stall_be_resource_sum) + \
                ',stall_be_sum,' + str(stall_be_sum) + '\n'
     # print(str_sum, file=f)
 
     line = {}
     line['cycles'] = cycles_sum
     line['instructions'] = instructions_sum
-    line['stall_slot_backend'] = stall_slot_backend_sum
-    line['op_spec'] = op_spec_sum
-    line['op_retired'] = op_retired_sum
     line['stall_be'] = stall_be_sum
-    line['stall_be_tlb'] = stall_be_tlb_sum
-    line['stall_be_mem'] = stall_be_mem_sum
-    line['stall_be_cache'] = stall_be_cache_sum
-    line['stall_be_resource'] = stall_be_resource_sum
+
     line['CPI'] = float(cycles_sum) / instructions_sum
-    line['retiring/IR'] = float(op_retired_sum) / 4 / instructions_sum
-    line['lost/IR'] = float(op_spec_sum - op_retired_sum) / 4 / instructions_sum
-    line['fe_stall/IR'] = line['CPI'] - float(stall_be_sum) / 4 / instructions_sum - line['retiring/IR'] - line[
-        'lost/IR']
     line['be_stall/IR'] = float(stall_be_sum) / 4 / instructions_sum
-    line['_be_core/IR'] = float(stall_be_sum) / 4 / instructions_sum - float(
-        stall_be_cache_sum) / instructions_sum - float(stall_be_tlb_sum) / instructions_sum
-    line['_be_memory/IR'] = float(stall_be_cache_sum) / instructions_sum + float(stall_be_tlb_sum) / instructions_sum
-    line['__be_cache/IR'] = float(stall_be_cache_sum) / instructions_sum
-    line['__be_tlb/IR'] = float(stall_be_tlb_sum) / instructions_sum
-    line['be_stall_mem/IR'] = float(stall_be_mem_sum) / instructions_sum
-    line['be_stall_resource/IR'] = float(stall_be_resource_sum) / instructions_sum
+
+    if stall_slot_backend_sum == 0:
+        line['stall_slot_backend'] = ''
+        line['stall_be_tlb'] = ''
+        line['stall_be_mem'] = ''
+        line['stall_be_cache'] = ''
+        line['stall_be_resource'] = ''
+        line['op_spec'] = ''
+        line['op_retired'] = ''
+        line['retiring/IR'] = ''
+        line['lost/IR'] = ''
+        line['_be_core/IR'] = ''
+        line['_be_memory/IR'] = ''
+        line['__be_cache/IR'] = ''
+        line['__be_tlb/IR'] = ''
+        line['be_stall_mem/IR'] = ''
+        line['be_stall_resource/IR'] = ''
+        line['fe_stall/IR'] = ''
+    else:
+        line['stall_slot_backend'] = stall_slot_backend_sum
+        line['stall_be_tlb'] = stall_be_tlb_sum
+        line['stall_be_mem'] = stall_be_mem_sum
+        line['stall_be_cache'] = stall_be_cache_sum
+        line['stall_be_resource'] = stall_be_resource_sum
+        line['op_spec'] = op_spec_sum
+        line['op_retired'] = op_retired_sum
+        line['retiring/IR'] = float(op_retired_sum) / 4 / instructions_sum
+        line['lost/IR'] = float(op_spec_sum - op_retired_sum) / 4 / instructions_sum
+        line['_be_core/IR'] = float(stall_be_sum) / 4 / instructions_sum - float(stall_be_cache_sum) / instructions_sum - float(stall_be_tlb_sum) / instructions_sum
+        line['_be_memory/IR'] = float(stall_be_cache_sum) / instructions_sum + float(stall_be_tlb_sum) / instructions_sum
+        line['__be_cache/IR'] = float(stall_be_cache_sum) / instructions_sum
+        line['__be_tlb/IR'] = float(stall_be_tlb_sum) / instructions_sum
+        line['be_stall_mem/IR'] = float(stall_be_mem_sum) / instructions_sum
+        line['be_stall_resource/IR'] = float(stall_be_resource_sum) / instructions_sum
+        line['fe_stall/IR'] = line['CPI'] - float(stall_be_sum) / 4 / instructions_sum - line['retiring/IR'] - line['lost/IR']
+
+    if inst_spec_sum == 0:
+        line['inst_spec/IR'] = ''
+        line['inst_retired/IR'] = ''
+    else:
+        line['inst_spec/IR'] = float(stall_be_mem_sum) / instructions_sum
+        line['inst_retired/IR'] = float(stall_be_resource_sum) / instructions_sum
+
     if cycles_H_sum != 0:
         line['cycles_H'] = cycles_H_sum
         line['cycles_H/cycles'] = cycles_H_sum / cycles_sum
