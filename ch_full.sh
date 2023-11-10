@@ -44,7 +44,7 @@ if [ ! -e /sys/fs/cgroup/systemd ];then
   sudo mount -t cgroup -o none,name=systemd cgroup /sys/fs/cgroup/systemd
 fi
 
-sudo apt install git build-essential m4 bison flex uuid-dev qemu-utils cargo mtools
+sudo apt install -y git build-essential m4 bison flex uuid-dev qemu-utils cargo mtools
 
 rustc --version
 if [ $? -ne 0 ];then
