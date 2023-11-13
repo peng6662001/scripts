@@ -6,10 +6,12 @@ import parse_perf
 
 full_list = {}
 
+
 def get_value(df, column ,name):
     if len(df[df['A'].str.contains(name)]) == 0:
         return ''
     return df[df['A'].str.contains(name)][column].iloc[0]
+
 
 def set_value(res, key, value):
     if key in res:
@@ -56,13 +58,6 @@ def parse_spec2017_csv(pardir, f):
     full_list[os.path.basename(path) + '_' + pardir + '_' + str(copies)] = res
 
 
-# def parse_dir(dir):
-#     for f in os.walk():
-#         name = os.path.basename(f)
-#         if name.endswith(".csv") and name.startswith("CPU2017"):
-#             parse_spec2017_csv(dir, os.path.join(os.path.abspath(dir), name))
-
-
 dir_name = sys.argv[1]
 if not os.path.isdir(dir_name):
     print("Please provide a directory")
@@ -71,7 +66,7 @@ if not os.path.isdir(dir_name):
 files = list()
 
 
-def dirAll(pathname):
+def dirAll(pathname):                                                           # Get all files in the directory
     if os.path.exists(pathname):
         filelist = os.listdir(pathname)
         for f in filelist:
@@ -87,19 +82,8 @@ def dirAll(pathname):
                     files.append(dirname + os.sep + baseName)
 
 
-# dirAll(dir_name)
-# for f in files:
-#     baseName = os.path.basename(f)
-#     if baseName.endswith(".csv") and baseName.startswith("CPU2017"):
-#         parse_spec2017_csv(f)
-
-
-# for dirpath, dirnames, filenames in os.walk(dir_name):
-#     for file in filenames:
-#         if file.endswith(".csv") and file.startswith("CPU2017"):
-#             parse_spec2017_csv(dir, os.path.join(os.path.abspath(dir), file))
-
-def parse_unit(dir_name):
+def parse_unit(dir_name):                                                       # Parse a log directory
+    files.clear()
     dirAll(dir_name)
     parentDir=os.path.basename(dir_name)
     for f in files:
@@ -107,7 +91,7 @@ def parse_unit(dir_name):
         if base_name.endswith(".csv") and base_name.startswith("CPU2017"):
             parse_spec2017_csv(parentDir[-15:], f)
 
-    perf_list = parse_perf.parse_dir(parentDir[-15:],dir_name)
+    perf_list = parse_perf.parse_dir(parentDir[-15:],dir_name)                  # Parse perf log
     if perf_list is not None:
         full_list.update(perf_list)
     print(perf_list)
