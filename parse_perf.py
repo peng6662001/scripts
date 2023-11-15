@@ -167,9 +167,17 @@ def cal_data(full_data):
     line['stall_be'] = stall_be_sum
 
     line['CPI'] = float(cycles_sum) / instructions_sum
-    line['be_stall/IR'] = float(stall_be_sum) / 4 / instructions_sum
+
 
     if stall_slot_backend_sum == 0:
+        line['retiring/IR'] = ''
+        line['lost/IR'] = ''
+        line['fe_stall/IR'] = ''
+        line['be_stall/IR'] = float(stall_be_sum) / 4 / instructions_sum
+        line['_be_core/IR'] = ''
+        line['_be_memory/IR'] = ''
+        line['__be_cache/IR'] = ''
+        line['__be_tlb/IR'] = ''
         line['stall_slot_backend'] = ''
         line['stall_be_tlb'] = ''
         line['stall_be_mem'] = ''
@@ -177,16 +185,18 @@ def cal_data(full_data):
         line['stall_be_resource'] = ''
         line['op_spec'] = ''
         line['op_retired'] = ''
-        line['retiring/IR'] = ''
-        line['lost/IR'] = ''
-        line['_be_core/IR'] = ''
-        line['_be_memory/IR'] = ''
-        line['__be_cache/IR'] = ''
-        line['__be_tlb/IR'] = ''
         line['be_stall_mem/IR'] = ''
         line['be_stall_resource/IR'] = ''
-        line['fe_stall/IR'] = ''
+
     else:
+        line['retiring/IR'] = float(op_retired_sum) / 4 / instructions_sum
+        line['lost/IR'] = float(op_spec_sum - op_retired_sum) / 4 / instructions_sum
+        line['fe_stall/IR'] = line['CPI'] - float(stall_be_sum) / 4 / instructions_sum - line['retiring/IR'] - line['lost/IR']
+        line['be_stall/IR'] = float(stall_be_sum) / 4 / instructions_sum
+        line['_be_core/IR'] = float(stall_be_sum) / 4 / instructions_sum - float(stall_be_cache_sum) / instructions_sum - float(stall_be_tlb_sum) / instructions_sum
+        line['_be_memory/IR'] = float(stall_be_cache_sum) / instructions_sum + float(stall_be_tlb_sum) / instructions_sum
+        line['__be_cache/IR'] = float(stall_be_cache_sum) / instructions_sum
+        line['__be_tlb/IR'] = float(stall_be_tlb_sum) / instructions_sum
         line['stall_slot_backend'] = stall_slot_backend_sum
         line['stall_be_tlb'] = stall_be_tlb_sum
         line['stall_be_mem'] = stall_be_mem_sum
@@ -194,15 +204,9 @@ def cal_data(full_data):
         line['stall_be_resource'] = stall_be_resource_sum
         line['op_spec'] = op_spec_sum
         line['op_retired'] = op_retired_sum
-        line['retiring/IR'] = float(op_retired_sum) / 4 / instructions_sum
-        line['lost/IR'] = float(op_spec_sum - op_retired_sum) / 4 / instructions_sum
-        line['_be_core/IR'] = float(stall_be_sum) / 4 / instructions_sum - float(stall_be_cache_sum) / instructions_sum - float(stall_be_tlb_sum) / instructions_sum
-        line['_be_memory/IR'] = float(stall_be_cache_sum) / instructions_sum + float(stall_be_tlb_sum) / instructions_sum
-        line['__be_cache/IR'] = float(stall_be_cache_sum) / instructions_sum
-        line['__be_tlb/IR'] = float(stall_be_tlb_sum) / instructions_sum
         line['be_stall_mem/IR'] = float(stall_be_mem_sum) / instructions_sum
         line['be_stall_resource/IR'] = float(stall_be_resource_sum) / instructions_sum
-        line['fe_stall/IR'] = line['CPI'] - float(stall_be_sum) / 4 / instructions_sum - line['retiring/IR'] - line['lost/IR']
+
 
     if inst_spec_sum == 0:
         line['inst_spec/IR'] = ''
