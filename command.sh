@@ -192,7 +192,7 @@ mkcloudinit()
     popd
 }
 
-preprare_spec2017()
+prepare_spec2017()
 {
     ssh_command "ls /home/amptest/ampere_spec2017"
     
@@ -203,6 +203,7 @@ preprare_spec2017()
         ssh_command "sudo tar xf /home/amptest/spec2017_ampere_gcc13_fedora36_siryn_213.tgz -C /home/amptest"
         ssh_command "cd /home/amptest/ampere_spec2017/spec2017 && echo yes | sudo ./install.sh "
         ssh_command "cd /home/amptest/ampere_spec2017/ && sudo ./high_perf.sh "
+	ssh_command "sed -i 's/physcpubind=$SPECCOPYNUM/physcpubind=`expr $SPECCOPYNUM + 1`/' /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64.cfg"
     fi
 }
 

@@ -23,7 +23,7 @@ create_disk()
     done
     
     sleep 5
-    preprare_spec2017
+    prepare_spec2017
 }
 
 if [ $1 == "create_disk" ];then
@@ -44,6 +44,8 @@ fi
 if [ $cpu_name == "altra" ];then
     perf stat -C 2 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,mem_access:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,inst_spec:G,inst_retired:G -I 1000 -x , -o $vm_csv_name &
 fi
+
+ssh_command "find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -maxdepth 2 -iname run -exec rm -rf {} \;"
 
 result_dir=${cpu_name}"_qemu_"`ssh_command 'uname -r'`
 if [ "$ACTION" == "copies_intrate" ];then
