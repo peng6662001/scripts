@@ -16,6 +16,8 @@ host_test()
     fi
 
     pushd /home/amptest/ampere_spec2017/
+    sed -i 's/physcpubind=$SPECCOPYNUM/physcpubind=`expr $SPECCOPYNUM + 1`/' /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64.cfg
+    find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -maxdepth 2 -iname run -exec rm -rf {} \;
     rm -rf spec2017/result
     rm -rf spec2017/$result_dir
     ./high_perf.sh
