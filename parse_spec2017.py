@@ -25,6 +25,7 @@ def read_interation(df, res):
     testcases = ['500.perlbench_r','502.gcc_r','505.mcf_r','520.omnetpp_r','523.xalancbmk_r',
                  '525.x264_r','531.deepsjeng_r','541.leela_r','548.exchange2_r','557.xz_r']
     copies = 1
+    seconds = 0;
     while(True):
         if len(df[df['L'].str.contains('iteration #' + str(iter))]) == 0:
             break
@@ -35,9 +36,10 @@ def read_interation(df, res):
             case_df = df_temp[df_temp['A'].str.contains(case)]
             if len(case_df) != 0:
                 copies = get_value(case_df, 'B', case)
+                seconds = get_value(df_temp, 'C', case)
 
         iter += 1
-    return copies
+    return copies, seconds
 
 
 def parse_spec2017_csv(pardir, f):
@@ -49,7 +51,8 @@ def parse_spec2017_csv(pardir, f):
     datas = pd.read_csv(f, header=None, skip_blank_lines=True, names=column_names)
     df = datas.loc[:, 'A':'L'].iloc[0:100].fillna(' ')
     res = {}
-    copies = read_interation(df, res)
+    copies,seconds = read_interation(df, res)
+    res['Seconds'] = seconds
     res['SPECrate2017_int_base'] = get_value(df, 'B', 'SPECrate2017_int_base')
     #res['SPECrate2017_int_peak'] = get_value(df, 'B', 'SPECrate2017_int_peak')
     res['copies'] = copies
