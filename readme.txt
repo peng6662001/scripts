@@ -1,8 +1,11 @@
+You can run all_cases.sh to do a full test,or the following commands to do a special test.
+
 all_spec2017_test.sh calls host_spec2017.sh,qemu_spec2017.sh and ch_spec2017.sh
 all_spec2017_test.sh 1 4 500.perlbench_r 520.omnetpp_r
 all_spec2017_test.sh 1 4 intrate
 
-
+1 means iterations
+4 means copies
 
 ./qemu_spec2017.sh 1 4 500.perlbench_r 520.omnetpp_r
 ./ch_spec2017.sh 1 4 500.perlbench_r 520.omnetpp_r
