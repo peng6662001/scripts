@@ -131,8 +131,10 @@ def save_cases_result():
 
     for i in range(len(host_all_data)):
         cases_result[host_array[i * 2]] = host_array[i * 2 + 1]
-        cases_result[qemu_array[i * 2]] = qemu_array[i * 2 + 1]
-        cases_result[clh_array[i * 2]] = clh_array[i * 2 + 1]
+        if len(qemu_array) > 0:
+            cases_result[qemu_array[i * 2]] = qemu_array[i * 2 + 1]
+        if len(clh_array) > 0:
+            cases_result[clh_array[i * 2]] = clh_array[i * 2 + 1]
 
     cases_df = pd.DataFrame(cases_result)
     cases_df[:10].to_csv('full_cases_data.csv', encoding='utf-8')
@@ -141,13 +143,14 @@ def save_cases_result():
 def parse_unit(dir_name):                                                       # Parse a log directory
     files.clear()
     dirAll(dir_name)
-    parentDir=os.path.basename(dir_name)
+    parent_dir = os.path.basename(dir_name)
+
     for f in files:
         base_name = os.path.basename(f)
         if base_name.endswith(".csv") and base_name.startswith("CPU2017"):
-            parse_spec2017_csv(parentDir[-15:], f)
+            parse_spec2017_csv(parent_dir[-15:], f)
 
-    perf_list = parse_perf.parse_dir(parentDir[-15:], dir_name)                  # Parse perf log
+    perf_list = parse_perf.parse_dir(parent_dir[-15:], dir_name)                  # Parse perf log
     if perf_list is not None:
         full_list.update(perf_list)
     print(perf_list)

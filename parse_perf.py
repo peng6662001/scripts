@@ -232,16 +232,23 @@ def parse_dir(parentDir,dir):
     data_host = read_csv(os.path.join(dir, 'host.csv'))
     res_host = cal_data(data_host)
     full_list['host_' + parentDir] = res_host
-    data_qemu = read_csv(os.path.join(dir, 'qemu.csv'))
-    res_qemu = cal_data(data_qemu)
-    full_list['qemu_' + parentDir] = res_qemu
-    data_clh = read_csv(os.path.join(dir, 'clh.csv'))
-    res_clh = cal_data(data_clh)
-    full_list['clh_' + parentDir] = res_clh
-    host_qemu_diff = cal_diff(res_host, res_qemu)
-    full_list['H_Q_Diff_' + parentDir] = host_qemu_diff
-    host_clh_diff = cal_diff(res_host, res_clh)
-    full_list['H_C_Diff_' + parentDir] = host_clh_diff
+    if os.path.exists(os.path.join(dir, 'qemu.csv')):
+        data_qemu = read_csv(os.path.join(dir, 'qemu.csv'))
+        res_qemu = cal_data(data_qemu)
+        full_list['qemu_' + parentDir] = res_qemu
+
+    if os.path.exists(os.path.join(dir, 'clh.csv')):
+        data_clh = read_csv(os.path.join(dir, 'clh.csv'))
+        res_clh = cal_data(data_clh)
+        full_list['clh_' + parentDir] = res_clh
+
+    if os.path.exists(os.path.join(dir, 'qemu.csv')):
+        host_qemu_diff = cal_diff(res_host, res_qemu)
+        full_list['H_Q_Diff_' + parentDir] = host_qemu_diff
+
+    if os.path.exists(os.path.join(dir, 'clh.csv')):
+        host_clh_diff = cal_diff(res_host, res_clh)
+        full_list['H_C_Diff_' + parentDir] = host_clh_diff
     return full_list
 
 def parse_all(dir):
