@@ -140,15 +140,30 @@ def save_cases_result():
     cases_df[:10].to_csv('full_cases_data.csv', encoding='utf-8')
 
 
+def file_parse(parent_dir,file_array):
+    for f in file_array:
+        parse_spec2017_csv(parent_dir[-15:], f)
+
+
 def parse_unit(dir_name):                                                       # Parse a log directory
     files.clear()
     dirAll(dir_name)
     parent_dir = os.path.basename(dir_name)
 
+    file_arrary = list(range(3))
+    count = 0
     for f in files:
         base_name = os.path.basename(f)
         if base_name.endswith(".csv") and base_name.startswith("CPU2017"):
-            parse_spec2017_csv(parent_dir[-15:], f)
+            file_arrary[count] = f
+            count += 1
+
+    if len(file_arrary) == 3:
+        tmp = file_arrary[1]
+        file_arrary[1] = file_arrary[2]
+        file_arrary[2] = tmp
+
+    file_parse(parent_dir, file_arrary)
 
     perf_list = parse_perf.parse_dir(parent_dir[-15:], dir_name)                  # Parse perf log
     if perf_list is not None:
