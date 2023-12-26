@@ -1,6 +1,6 @@
-#!/bin/bash -x
+#!/bin/bash 
 
-if [ $# -lt 3 ];then
+if [ $# -lt 1 ];then
     echo "usage:./pmu_mem_bw.sh 1"
     exit 1
 fi
