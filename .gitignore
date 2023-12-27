@@ -1,5 +1,6 @@
 workloads
 tlog
+mem_bw.log
 .idea
 *.csv
 __pycache__

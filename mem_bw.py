@@ -6,6 +6,7 @@ perf_data = {}
 
 file_name = sys.argv[1]
 duration = int(sys.argv[2])
+count = int(sys.argv[3])
 
 if duration < 1:
     duration = 1
@@ -41,12 +42,13 @@ for k in perf_data.keys():
             rd_bw_s1 += perf_data[k].get('val')
 
 wr_bw_s0 = wr_bw_s0*64/1024/1024/duration
-wr_bw_s1 = wr_bw_s1*64/1024/1024/duration
-rd_bw_s0 = rd_bw_s0*64/1024/1024/duration
-rd_bw_s1 = rd_bw_s1*64/1024/1024/duration
-
-
-print(f"rd_bw_s0: {rd_bw_s0:.2f} MiBs")
-print(f"rd_bw_s1: {rd_bw_s1:.2f} MiBs")
 print(f"wr_bw_s0: {wr_bw_s0:.2f} MiBs")
-print(f"wr_bw_s1: {wr_bw_s1:.2f} MiBs")
+if count == 31:
+    wr_bw_s1 = wr_bw_s1*64/1024/1024/duration
+    print(f"wr_bw_s1: {wr_bw_s1:.2f} MiBs")
+rd_bw_s0 = rd_bw_s0*64/1024/1024/duration
+print(f"rd_bw_s0: {rd_bw_s0:.2f} MiBs")
+if count == 31:
+    rd_bw_s1 = rd_bw_s1*64/1024/1024/duration
+    print(f"rd_bw_s1: {rd_bw_s1:.2f} MiBs")
+
