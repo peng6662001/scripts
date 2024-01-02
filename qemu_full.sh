@@ -102,6 +102,10 @@ QEMU_BIN="$WORKLOADS_DIR/qemu/build/qemu-system-aarch64"
 BIOS_BIN="/usr/share/edk2/aarch64/QEMU_EFI.silent.fd"
 DISK0_CFG="-drive if=none,file=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0"
 DISK1_CFG="-drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_net.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1"
+
+rm -rf /dev/hugepages1G/libvirt/qemu/1-test
+./setup_1g_hugepage.sh
+
 qemu-system-aarch64 --version
 qemu-system-aarch64 \
         -nographic \
@@ -112,5 +116,6 @@ qemu-system-aarch64 \
 	-qmp unix:/tmp/qmp-test2,server,nowait \
         $DISK0_CFG \
         $DISK1_CFG \
+	-object '{"qom-type":"memory-backend-file","id":"pc.ram","mem-path":"/dev/hugepages1G/libvirt/qemu/1-test","share":true,"x-use-canonical-path-for-ramblock-id":false,"prealloc":true,"size":137438953472}' \
         -net nic -net user,hostfwd=tcp::3333-:22 \
         2>&1 | tee $WORKLOADS_DIR/log.txt & 
