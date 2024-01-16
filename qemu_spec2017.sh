@@ -23,6 +23,7 @@ create_disk()
     done
     
     sleep 5
+    export GLIBC_TUNABLES=glibc.malloc.hugetlb=0
     prepare_spec2017
 }
 
@@ -54,7 +55,7 @@ if [ "$ACTION" == "copies_intrate" ];then
     ssh_command "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
     ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo rm -rf spec2017/$result_dir && sudo ./high_perf.sh && sudo ./full_test.sh"
 else
-    ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo rm -rf spec2017/$result_dir && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION"
+    ssh_command "export GLIBC_TUNABLES=glibc.malloc.hugetlb=2 && cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo rm -rf spec2017/$result_dir && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION"
 fi
 ssh_command "sudo mv /home/amptest/ampere_spec2017/spec2017/result /home/amptest/ampere_spec2017/spec2017/$result_dir"
 scp_pull "/home/amptest/ampere_spec2017/spec2017/$result_dir" $LOG_DIR
