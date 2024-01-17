@@ -77,6 +77,15 @@ scp_push()
     sshpass -p $PASS scp -P $PORT -o "StrictHostKeyChecking no" -r $1 $USER@$ADDR:$2
 }
 
+ssh_command_chs()
+{
+    let end=$1+$2
+    for ((i = $1;i < $end;i++))
+    do
+	sshpass -p $PASS ssh $USER@192.168.$i.2 -o "StrictHostKeyChecking no" $3
+    done
+}
+
 ssh_command_ch()
 {
     sshpass -p $PASS ssh $USER@192.168.249.2 -o "StrictHostKeyChecking no" $1
@@ -175,20 +184,24 @@ build_edk2() {
 
 mkcloudinit()
 {
+    pushd $WORKLOADS_DIR
     rm -rf cloudinit*
     mkdir cloudinit
-    pushd cloudinit
-    echo -e "#cloud-config\nusers:\n  - name: cloud\n    passwd: \$6\$7125787751a8d18a\$sHwGySomUA1PawiNFWVCKYQN.Ec.Wzz0JtPPL1MvzFrkwmop2dq7.4CYf03A5oemPQ4pOFCCrtCelvFBEle/K.\n    sudo: ALL=(ALL) NOPASSWD:ALL\n    lock_passwd: False\n    inactive: False\n    shell: /bin/bash\n\nssh_pwauth: True" > user-data
-    echo -e "instance-id: cloud\nlocal-hostname: cloud" > meta-data
-    echo -e "version: 2\nethernets:\n  eth0:\n    match:\n       macaddress: 12:34:56:78:90:ab\n    addresses: [192.168.249.2/24]\n    gateway4: 192.168.249.1" > network-config
-    mkdosfs -n CIDATA -C cloudinit.img 8192
-    mcopy -oi cloudinit.img -s user-data ::
-    mcopy -oi cloudinit.img -s meta-data ::
-    mkdosfs -n CIDATA -C cloudinit_net.img 8192
-    mcopy -oi cloudinit_net.img -s user-data ::
-    mcopy -oi cloudinit_net.img -s meta-data ::
-    mcopy -oi cloudinit_net.img -s network-config ::
-    
+    for ((i = 2; i < 6;i++))
+    do
+        pushd cloudinit
+        echo -e "#cloud-config\nusers:\n  - name: cloud\n    passwd: \$6\$7125787751a8d18a\$sHwGySomUA1PawiNFWVCKYQN.Ec.Wzz0JtPPL1MvzFrkwmop2dq7.4CYf03A5oemPQ4pOFCCrtCelvFBEle/K.\n    sudo: ALL=(ALL) NOPASSWD:ALL\n    lock_passwd: False\n    inactive: False\n    shell: /bin/bash\n\nssh_pwauth: True" > user-data
+        echo -e "instance-id: cloud\nlocal-hostname: cloud" > meta-data
+        echo -e "version: 2\nethernets:\n  eth0:\n    match:\n       macaddress: 12:34:56:78:90:0$i\n    addresses: [192.168.$i.2/24]\n    gateway4: 192.168.$i.1" > network-config
+        mkdosfs -n CIDATA -C cloudinit_$i.img 8192
+        mcopy -oi cloudinit_$i.img -s user-data ::
+        mcopy -oi cloudinit_$i.img -s meta-data ::
+        mkdosfs -n CIDATA -C cloudinit_net_$i.img 8192
+        mcopy -oi cloudinit_net_$i.img -s user-data ::
+        mcopy -oi cloudinit_net_$i.img -s meta-data ::
+        mcopy -oi cloudinit_net_$i.img -s network-config ::
+        popd
+    done
     popd
 }
 
