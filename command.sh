@@ -79,11 +79,16 @@ scp_push()
 
 ssh_command_chs()
 {
+    ret=0
     let end=$1+$2
     for ((i = $1;i < $end;i++))
     do
 	sshpass -p $PASS ssh $USER@192.168.$i.2 -o "StrictHostKeyChecking no" $3
+	if [ $? -eq 0 ];then
+	    let ret=$ret+1
+	fi
     done
+    return $ret
 }
 
 ssh_command_ch()
@@ -91,14 +96,38 @@ ssh_command_ch()
     sshpass -p $PASS ssh $USER@192.168.249.2 -o "StrictHostKeyChecking no" $1
 }
 
+ssh_command_ip()
+{
+    sshpass -p $PASS ssh $USER@$1 -o "StrictHostKeyChecking no" $2
+}
+
 scp_pull_ch()
 {
     sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $USER@192.168.249.2:$1 $2
 }
 
+scp_pull_ip()
+{
+    sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $USER@$1:$2 $3
+}
+
 scp_push_ch()
 {
     sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $1 $USER@192.168.249.2:$2
+}
+
+scp_push_ip()
+{
+    sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $2 $USER@$1:$3
+}
+
+scp_push_chs()
+{
+    let end=$1+$2
+    for ((i = $1;i < $end;i++))
+    do
+	sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $3 $USER@192.168.$i.2:$4
+    done
 }
 
 # Checkout source code of a GIT repo with specified branch and commit

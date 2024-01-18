@@ -84,6 +84,8 @@ do
     ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.$i.2"
     rm -rf /tmp/vsock_*
     cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$i.raw
+    cp /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64_vm.cfg /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64_vm_$i.cfg
+    sed -i "s/ampere_gcc12_vm/ampere_gcc12_vm_$i" /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64_vm_$i.cfg
     $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
         --cpus boot=1 \
         --memory size=4G,hugepages=on,hugepage_size=1G,prefault=on \
