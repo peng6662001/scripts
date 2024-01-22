@@ -20,14 +20,13 @@ if [ $cpu_name == "altra" ];then
 fi
 
 VMS=4
-result_dir=${cpu_name}"_clh_"`ssh_command_chs 2 1 'uname -r'`
+result_dir="/home/amptest/ampere_spec2017/spec2017/log_"${cpu_name}"_clh_"`ssh_command_ip 192.168.2.2 'uname -r'`
 COMPLETE=0
 
 one_spec2017_test()
 {
-    ssh_command_ip 192.168.$1.2 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo rm -rf spec2017/${result_dir}* && sudo ./high_perf.sh && sudo ./run_spec2017_vm.sh --config=ampere_aarch64_vm_$1 --iterations $ITER --copies $COPIES --nobuild --action run $ACTION"
-    ssh_command_ip 192.168.$1.2 "sudo mv /home/amptest/ampere_spec2017/spec2017/result /home/amptest/ampere_spec2017/spec2017/${result_dir}_$1"
-    scp_pull_ip 192.168.$1.2 "/home/amptest/ampere_spec2017/spec2017/${result_dir}_$1" $LOG_DIR
+    ssh_command_ip 192.168.$1.2 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf ${result_dir}_$1 && sudo ./high_perf.sh && sudo ./run_spec2017_vm.sh --config=ampere_aarch64_vm_$1 --output_root ${result_dir}_$1 --iterations $ITER --copies $COPIES --rebuild --action run $ACTION"
+    scp_pull_ip 192.168.$1.2 "${result_dir}_$1" $LOG_DIR
     ssh_command_ip 192.168.$1.2 "sudo shutdown -h now" 
     let COMPLETE=$COMPLETE+1
 }
