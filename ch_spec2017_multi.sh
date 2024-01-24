@@ -9,6 +9,7 @@ fi
 
 vm_csv_name=$LOG_DIR/clh.csv
 ./ch_full_multi.sh
+ps aux | grep cloud-hypervisor | wc -l
 
 sleep 5
 
@@ -19,29 +20,26 @@ if [ $cpu_name == "altra" ];then
     perf stat -C 2 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,mem_access:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,inst_spec:G,inst_retired:G -I 1000 -x , -o $vm_csv_name &
 fi
 
-VMS=4
-result_dir="/home/amptest/ampere_spec2017/spec2017/log_"${cpu_name}"_clh_"`ssh_command_ip 192.168.2.2 'uname -r'`
-COMPLETE=0
+result_dir="/home/cloud/log_"${cpu_name}"_clh_"`ssh_command_ip 192.168.2.2 'uname -r'`
 
 one_spec2017_test()
 {
-    ssh_command_ip 192.168.$1.2 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf ${result_dir}_$1 && sudo ./high_perf.sh && sudo ./run_spec2017_vm.sh --config=ampere_aarch64_vm_$1 --output_root ${result_dir}_$1 --iterations $ITER --copies $COPIES --rebuild --action run $ACTION"
-    scp_pull_ip 192.168.$1.2 "${result_dir}_$1" $LOG_DIR
+    addr=`get_string $1`
+    ssh_command_ip 192.168.$1.2 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf ${result_dir}_$addr && sudo ./high_perf.sh && sudo ./run_spec2017_vm.sh --config=ampere_aarch64_vm --output_root ${result_dir}_$addr --iterations $ITER --copies $COPIES --rebuild --action run $ACTION"
+    scp_pull_ip 192.168.$1.2 "${result_dir}_$addr/result" $LOG_DIR/result_$addr
     ssh_command_ip 192.168.$1.2 "sudo shutdown -h now" 
-    let COMPLETE=$COMPLETE+1
 }
 
-for ((i=2;i<($VMS+2);i++))
+for ((i=$vm_start;i<$vm_end;i++))
 do
     one_spec2017_test $i &
 done
 
-while [ $COMPLETE -lt $VMS ]
+res=1
+while [ $res -ne 0 ]
 do
-    ssh_command_chs 2 $VMS ls
-    if [ $? -eq 0 ];then
-	break
-    fi
+    ping_chs
+    res=$?
     sleep 5
 done
 

@@ -4,6 +4,9 @@ PORT=3333
 USER=cloud
 PASS=cloud123
 cpu_name="host"
+vm_count=16
+vm_start=2
+let vm_end=$vm_start+$vm_count
 WORKLOADS_DIR=$PWD/workloads
 LOG_DIR=$WORKLOADS_DIR/latest
 
@@ -47,6 +50,15 @@ if [ ! -e $LOG_DIR ];then
     fi
 fi
 
+get_string()
+{
+    if [ $1 -lt 10 ];then
+	echo "0$1"
+    else
+    echo "$1"
+    fi
+}
+
 get_cpu_name()
 {
     ret=`sudo lscpu | grep -i "AmpereOne"`
@@ -77,13 +89,12 @@ scp_push()
     sshpass -p $PASS scp -P $PORT -o "StrictHostKeyChecking no" -r $1 $USER@$ADDR:$2
 }
 
-ssh_command_chs()
+ping_chs()
 {
     ret=0
-    let end=$1+$2
-    for ((i = $1;i < $end;i++))
+    for ((i = $vm_start;i < $vm_end;i++))
     do
-	sshpass -p $PASS ssh $USER@192.168.$i.2 -o "StrictHostKeyChecking no" $3
+	ping 192.168.$i.2 -c 1 -W 1
 	if [ $? -eq 0 ];then
 	    let ret=$ret+1
 	fi
@@ -216,12 +227,13 @@ mkcloudinit()
     pushd $WORKLOADS_DIR
     rm -rf cloudinit*
     mkdir cloudinit
-    for ((i = 2; i < 6;i++))
+    for ((i = $vm_start; i < $vm_end;i++))
     do
         pushd cloudinit
+	addr=`get_string $i`
         echo -e "#cloud-config\nusers:\n  - name: cloud\n    passwd: \$6\$7125787751a8d18a\$sHwGySomUA1PawiNFWVCKYQN.Ec.Wzz0JtPPL1MvzFrkwmop2dq7.4CYf03A5oemPQ4pOFCCrtCelvFBEle/K.\n    sudo: ALL=(ALL) NOPASSWD:ALL\n    lock_passwd: False\n    inactive: False\n    shell: /bin/bash\n\nssh_pwauth: True" > user-data
         echo -e "instance-id: cloud\nlocal-hostname: cloud" > meta-data
-        echo -e "version: 2\nethernets:\n  eth0:\n    match:\n       macaddress: 12:34:56:78:90:0$i\n    addresses: [192.168.$i.2/24]\n    gateway4: 192.168.$i.1" > network-config
+        echo -e "version: 2\nethernets:\n  eth0:\n    match:\n       macaddress: 12:34:56:78:90:$addr\n    addresses: [192.168.$i.2/24]\n    gateway4: 192.168.$i.1" > network-config
         mkdosfs -n CIDATA -C cloudinit_$i.img 8192
         mcopy -oi cloudinit_$i.img -s user-data ::
         mcopy -oi cloudinit_$i.img -s meta-data ::

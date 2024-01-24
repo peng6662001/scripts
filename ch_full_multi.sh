@@ -79,29 +79,37 @@ rm -rf /dev/hugepages1G/libvirt/qemu/1-test
 
 mkcloudinit
 
-for ((i = 2;i < 6;i++))
+rm -rf /tmp/vsock_*
+rm -rf $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_*.raw
+rm -rf $WORKLOADS_DIR/spec2017_disk_*.qcow2
+
+for ((i = $vm_start;i < $vm_end;i++))
 do
+    addr=`get_string $i`
     ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.$i.2"
-    rm -rf /tmp/vsock_*
-    cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$i.raw
-    cp /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64_vm.cfg /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64_vm_$i.cfg
-    sed -i "s/ampere_gcc12_vm/ampere_gcc12_vm_$i" /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64_vm_$i.cfg
+
+    cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
+    qemu-img create -f qcow2 -b /home/dom/scripts/workloads/spec2017_disk.qcow2 -F qcow2 /home/dom/scripts/workloads/spec2017_disk_$addr.qcow2
+
+    sed -i '/192.168.$i.2/d' /root/.ssh/known_hosts
+
     $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
         --cpus boot=1 \
         --memory size=4G,hugepages=on,hugepage_size=1G,prefault=on \
         --kernel $WORKLOADS_DIR/CLOUDHV_EFI.fd \
-        --disk path=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$i.raw \
+        --disk path=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw \
         --disk path=$WORKLOADS_DIR/cloudinit/cloudinit_net_$i.img,iommu=on \
+        --disk path=$WORKLOADS_DIR/spec2017_disk_$addr.qcow2 \
         --vsock cid=$i,socket=/tmp/vsock_$i \
 	--serial tty --console off \
-        --net id=net_$i,tap=,mac=12:34:56:78:90:0$i,ip=192.168.$i.1,mask=255.255.255.0 & #& exit
-    sed -i '/192.168.$i.2/d' /root/.ssh/known_hosts
+        --net id=net_$i,tap=,mac=12:34:56:78:90:$addr,ip=192.168.$i.1,mask=255.255.255.0 & #& exit
 done
-res=1
-while [ $res -ne 0 ];
+res=0
+echo "Wait all vms online"
+while [ $res -ne $vm_count ]
 do
-    ssh_command_chs 2 4 ls
+    ping_chs
     res=$?
     sleep 1
 done
-
+echo "All vms online"
