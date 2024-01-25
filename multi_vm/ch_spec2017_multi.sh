@@ -1,7 +1,7 @@
-#!/bin/bash -x
+#!/bin/bash 
 PARAM_NUM=$#
 
-source command.sh $@
+source ../command.sh $@
 
 if [ $# -lt 3 ];then
     showHelp ch

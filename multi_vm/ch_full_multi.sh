@@ -2,7 +2,8 @@
 
 #2023.01.10 version 1.0
 
-source command.sh
+source ../command.sh
+WORKLOADS_DIR=$PWD/../workloads/
 if [ ! -e $WORKLOADS_DIR ];then
   mkdir $WORKLOADS_DIR
 fi
