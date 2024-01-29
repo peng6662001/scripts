@@ -38,9 +38,8 @@ done
 res=1
 while [ $res -ne 0 ]
 do
-    ping_chs
-    res=$?
-    sleep 5
+    res=`pgrep cloud-hyperviso|wc -l`
+    sleep 10
 done
 
 killall perf

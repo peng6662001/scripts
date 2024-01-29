@@ -3,10 +3,6 @@
 #2023.01.10 version 1.0
 
 source ../command.sh
-WORKLOADS_DIR=$PWD/../workloads/
-if [ ! -e $WORKLOADS_DIR ];then
-  mkdir $WORKLOADS_DIR
-fi
 
 ROOTFS="$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw"
 
@@ -81,26 +77,25 @@ rm -rf /dev/hugepages1G/libvirt/qemu/1-test
 mkcloudinit
 
 rm -rf /tmp/vsock_*
-rm -rf $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_*.raw
-rm -rf $WORKLOADS_DIR/spec2017_disk_*.qcow2
+rm -rf $DISKS_DIR/*
 
 for ((i = $vm_start;i < $vm_end;i++))
 do
     addr=`get_string $i`
     ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.$i.2"
 
-    cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
-    qemu-img create -f qcow2 -b /home/dom/scripts/workloads/spec2017_disk.qcow2 -F qcow2 /home/dom/scripts/workloads/spec2017_disk_$addr.qcow2
+    cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
+    qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $DISKS_DIR/spec2017_disk_$addr.qcow2
 
     sed -i '/192.168.$i.2/d' /root/.ssh/known_hosts
 
     $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
-        --cpus boot=1 \
+        --cpus boot=1,affinity=[0@[$i]] \
         --memory size=4G,hugepages=on,hugepage_size=1G,prefault=on \
         --kernel $WORKLOADS_DIR/CLOUDHV_EFI.fd \
-        --disk path=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw \
+        --disk path=$DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw \
         --disk path=$WORKLOADS_DIR/cloudinit/cloudinit_net_$i.img,iommu=on \
-        --disk path=$WORKLOADS_DIR/spec2017_disk_$addr.qcow2 \
+        --disk path=$DISKS_DIR/spec2017_disk_$addr.qcow2 \
         --vsock cid=$i,socket=/tmp/vsock_$i \
 	--serial tty --console off \
         --net id=net_$i,tap=,mac=12:34:56:78:90:$addr,ip=192.168.$i.1,mask=255.255.255.0 & #& exit

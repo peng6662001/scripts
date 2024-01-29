@@ -7,8 +7,27 @@ cpu_name="host"
 vm_count=32
 vm_start=2
 let vm_end=$vm_start+$vm_count
-WORKLOADS_DIR=$PWD/workloads
+MULTI_VM=${PWD:0-8:8}
+
+if [ $MULTI_VM == "multi_vm" ];then
+    WORKLOADS_DIR=$PWD/../workloads
+else
+    WORKLOADS_DIR=$PWD/workloads
+fi
 LOG_DIR=$WORKLOADS_DIR/latest
+DISKS_DIR=$WORKLOADS_DIR/disks
+
+if [ ! -e $WORKLOADS_DIR ];then
+  mkdir $WORKLOADS_DIR
+fi
+
+if [ ! -e $LOG_DIR ];then
+  mkdir $LOG_DIR
+fi
+
+if [ ! -e $DISKS_DIR ];then
+  mkdir $DISKS_DIR
+fi
 
 showHelp()
 {
