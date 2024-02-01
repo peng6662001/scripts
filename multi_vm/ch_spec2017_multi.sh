@@ -8,6 +8,7 @@ if [ $# -lt 3 ];then
 fi
 
 SAVE_DIR=$LOG_DIR/$COPIES/clh
+DIR="COPY"`get_string $COPIES`
 vm_csv_name=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/clh.csv
 ./ch_full_multi.sh $@
 ps aux | grep cloud-hypervisor | wc -l
@@ -27,7 +28,6 @@ result_dir="/home/cloud/log_"${cpu_name}"_clh_"$KERNEL
 one_spec2017_test()
 {
     addr=`get_string $1`
-    DIR="COPY"`get_string $COPIES`
     SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_"$addr
     if [ $BUILD_OPT == "rebuild" ];then
 	ssh_command_ip 192.168.$1.2 "sudo rm -rf ${result_dir}_$addr"
