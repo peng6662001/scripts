@@ -6,8 +6,10 @@ PASS=cloud123
 cpu_name="host"
 vm_count=32
 vm_start=2
+COPIES=1
 let vm_end=$vm_start+$vm_count
 MULTI_VM=${PWD:0-8:8}
+BUILD_OPT=nobuild		#it's better to rebuild once to generate necessary files to reduce the total test time,then modify it to nobuild
 
 if [ $MULTI_VM == "multi_vm" ];then
     WORKLOADS_DIR=$PWD/../workloads
@@ -60,7 +62,7 @@ else
     shift
     shift
     ACTION=$@
-    LOG_DIR=$WORKLOADS_DIR/log_`echo $ACTION|sed 's/ /_/g'`_`date +%Y%m%d_%H%M%S`
+    LOG_DIR=$WORKLOADS_DIR/log_`date +%Y%m%d_%H%M%S`
 fi
 
 if [ ! -e $LOG_DIR ];then

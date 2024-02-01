@@ -1,8 +1,8 @@
-#!/bin/bash -x
+#!/bin/bash
 
 #2023.01.10 version 1.0
 
-source ../command.sh
+source ../command.sh $@
 
 ROOTFS="$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw"
 
@@ -72,20 +72,29 @@ build_edk2
 rm -rf /tmp/vsock
 
 rm -rf /dev/hugepages1G/libvirt/qemu/1-test
-./setup_1g_hugepage.sh
+../setup_1g_hugepage.sh
 
 mkcloudinit
 
 rm -rf /tmp/vsock_*
-rm -rf $DISKS_DIR/*
+
+if [ $BUILD_OPT == "rebuild" ];then
+    rm -rf $DISKS_DIR/*
+fi
+
+let vm_end=$vm_start+$COPIES
 
 for ((i = $vm_start;i < $vm_end;i++))
 do
     addr=`get_string $i`
     ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.$i.2"
 
-    cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
-    qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $DISKS_DIR/spec2017_disk_$addr.qcow2
+
+    if [ $BUILD_OPT == "rebuild" ];then
+	echo cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
+	cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
+	qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $DISKS_DIR/spec2017_disk_$addr.qcow2
+    fi
 
     sed -i '/192.168.$i.2/d' /root/.ssh/known_hosts
 
@@ -97,12 +106,12 @@ do
         --disk path=$WORKLOADS_DIR/cloudinit/cloudinit_net_$i.img,iommu=on \
         --disk path=$DISKS_DIR/spec2017_disk_$addr.qcow2 \
         --vsock cid=$i,socket=/tmp/vsock_$i \
-	--serial tty --console off \
+	--serial off --console off \
         --net id=net_$i,tap=,mac=12:34:56:78:90:$addr,ip=192.168.$i.1,mask=255.255.255.0 & #& exit
 done
 res=0
 echo "Wait all vms online"
-while [ $res -ne $vm_count ]
+while [ $res -ne $COPIES ]
 do
     ping_chs
     res=$?
