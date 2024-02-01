@@ -81,7 +81,10 @@ def parse_spec2017_csv(pardir, f):
 
     path = os.path.dirname(f)
     base_name = os.path.basename(path)
-    key = pardir
+    pardir_name = os.path.basename(os.path.abspath(os.path.join(path, os.pardir)))
+    copy_count = os.path.basename(os.path.abspath(os.path.join(path, os.pardir, os.pardir)))[-2:]
+
+    key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("-")[0] + "_" + base_name[-2:]
     full_list[key] = res
 
     if compat_data:
@@ -146,8 +149,11 @@ def save_cases_result():
 
 
 def file_parse(parent_dir,file_array):
-    for f in file_array:
-        parse_spec2017_csv(parent_dir[-15:], f)
+    for case in spec2017_cases:
+        for f in file_array:
+            path = os.path.abspath(f)
+            if case in path:
+                parse_spec2017_csv(parent_dir[-15:], f)
 
 
 def parse_unit(dir_name):                                                       # Parse a log directory
@@ -170,21 +176,21 @@ def parse_unit(dir_name):                                                       
 
     file_parse(parent_dir, file_arrary)
 
-    perf_list = parse_perf.parse_dir(parent_dir, dir_name)                  # Parse perf log
-    if perf_list is not None:
-        full_list.update(perf_list)
-
 
 for temp in os.listdir(dir_name):
-    file_path = os.path.join(dir_name,temp)
+    file_path = os.path.join(dir_name, temp)
     if os.path.isdir(file_path):
         parse_unit(file_path)
+    else:
+        perf_list = parse_perf.parse_dir(".", dir_name)  # Parse perf log
+        if perf_list is not None:
+            full_list.update(perf_list)
 
 print("Complete")
 
 full_df = pd.DataFrame(full_list)
-full_df['mean'] = full_df.mean(axis=1)
-full_df.round(2).to_csv('full_data.csv', encoding='utf-8')
+# full_df['mean'] = full_df.mean(axis=1)
+# full_df.round(2).to_csv('full_data.csv', encoding='utf-8')
 
 if compat_data:
     save_cases_result()

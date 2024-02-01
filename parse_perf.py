@@ -226,12 +226,14 @@ def cal_data(full_data):
 
 
 def parse_dir(parentDir,dir):
-    if not os.path.exists(os.path.join(dir, 'host.csv')):
-        return
+    res_host = None
+    res_qemu = None
+    res_clh = None
+    if os.path.exists(os.path.join(dir, 'host.csv')):
+        data_host = read_csv(os.path.join(dir, 'host.csv'))
+        res_host = cal_data(data_host)
+        full_list['host_' + parentDir] = res_host
 
-    data_host = read_csv(os.path.join(dir, 'host.csv'))
-    res_host = cal_data(data_host)
-    full_list['host_' + parentDir] = res_host
     if os.path.exists(os.path.join(dir, 'qemu.csv')):
         data_qemu = read_csv(os.path.join(dir, 'qemu.csv'))
         res_qemu = cal_data(data_qemu)
@@ -242,11 +244,11 @@ def parse_dir(parentDir,dir):
         res_clh = cal_data(data_clh)
         full_list['clh_' + parentDir] = res_clh
 
-    if os.path.exists(os.path.join(dir, 'qemu.csv')):
+    if res_host is not None and res_qemu is not None:
         host_qemu_diff = cal_diff(res_host, res_qemu)
         full_list['H_Q_Diff_' + parentDir] = host_qemu_diff
 
-    if os.path.exists(os.path.join(dir, 'clh.csv')):
+    if res_host is not None and res_clh is not None:
         host_clh_diff = cal_diff(res_host, res_clh)
         full_list['H_C_Diff_' + parentDir] = host_clh_diff
     return full_list
