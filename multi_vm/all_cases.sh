@@ -3,6 +3,12 @@
 #500.perlbench_r 502.gcc_r 505.mcf_r 520.omnetpp_r 523.xalancbmk_r 525.x264_r 531.deepsjeng_r 541.leela_r 548.exchange2_r 557.xz_r
 
 source ../command.sh
+echo "BUILD_OPT=$BUILD_OPT"
+if [ "$BUILD_OPT" == "rebuild" ];then
+    echo "only rebuild"
+    ./ch_spec2017_multi.sh log_dir /home/dom/scripts/workloads/log_rebuild 1 32 intrate
+    exit 0
+fi
 
 test_copies()
 {

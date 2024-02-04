@@ -78,23 +78,12 @@ mkcloudinit
 
 rm -rf /tmp/vsock_*
 
-if [ $BUILD_OPT == "rebuild" ];then
-    rm -rf $DISKS_DIR/*
-fi
-
 let vm_end=$vm_start+$COPIES
 
 for ((i = $vm_start;i < $vm_end;i++))
 do
     addr=`get_string $i`
     ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.$i.2"
-
-
-    if [ $BUILD_OPT == "rebuild" ];then
-	echo cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
-	cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
-	qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $DISKS_DIR/spec2017_disk_$addr.qcow2
-    fi
 
     sed -i '/192.168.$i.2/d' /root/.ssh/known_hosts
 

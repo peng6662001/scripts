@@ -6,7 +6,7 @@ PASS=cloud123
 cpu_name="host"
 vm_count=32
 vm_start=2
-COPIES=1
+COPIES=32
 let vm_end=$vm_start+$vm_count
 MULTI_VM=${PWD:0-8:8}
 BUILD_OPT=nobuild		#it's better to rebuild once to generate necessary files to reduce the total test time,then modify it to nobuild
@@ -97,17 +97,29 @@ get_cpu_name
 
 ssh_command()
 {
-    sshpass -p $PASS ssh $USER@127.0.0.1 -p 3333 -o "StrictHostKeyChecking no" $1
+    if [ $# -eq 1 ];then
+	sshpass -p $PASS ssh $USER@127.0.0.1 -p 3333 -o "StrictHostKeyChecking no" $1
+    else
+	sshpass -p $PASS ssh $USER@127.0.0.1 -p $1 -o "StrictHostKeyChecking no" $2
+    fi
 }
 
 scp_pull()
 {
-    sshpass -p $PASS scp -P $PORT -o "StrictHostKeyChecking no" -r $USER@$ADDR:$1 $2
+    if [ $# -eq 2 ];then
+	sshpass -p $PASS scp -P $PORT -o "StrictHostKeyChecking no" -r $USER@$ADDR:$1 $2
+    else
+	sshpass -p $PASS scp -P $1    -o "StrictHostKeyChecking no" -r $USER@$ADDR:$2 $3
+    fi
 }
 
 scp_push()
 {
-    sshpass -p $PASS scp -P $PORT -o "StrictHostKeyChecking no" -r $1 $USER@$ADDR:$2
+    if [ $# -eq 2 ];then
+	sshpass -p $PASS scp -P $PORT -o "StrictHostKeyChecking no" -r $1 $USER@$ADDR:$2
+    else
+	sshpass -p $PASS scp -P $1    -o "StrictHostKeyChecking no" -r $2 $USER@$ADDR:$3
+    fi
 }
 
 ping_chs()
@@ -122,6 +134,25 @@ ping_chs()
     done
     return $ret
 }
+
+check_vms_online()
+{
+    ret=0
+    PORT=3333
+    let vm_end=$vm_start+$COPIES
+    for ((i = $vm_start;i < $vm_end;i++))
+    do
+	let port=$PORT+$i
+        ssh_command $port "ls"
+        if [ $? -eq 0 ];then
+            let ret=$ret+1
+	else
+	    break
+        fi
+    done
+    return $ret
+}
+
 
 ssh_command_ch()
 {
@@ -279,6 +310,16 @@ prepare_spec2017()
         ssh_command "cd /home/amptest/ampere_spec2017/spec2017 && echo yes | sudo ./install.sh "
         ssh_command "cd /home/amptest/ampere_spec2017/ && sudo ./high_perf.sh "
 	ssh_command "sed -i 's/physcpubind=$SPECCOPYNUM/physcpubind=`expr $SPECCOPYNUM + 1`/' /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64.cfg"
+    fi
+}
+
+prepare_disks()
+{
+    if [ $BUILD_OPT == "rebuild" ];then
+	addr=`get_string $1`
+        echo cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
+        cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
+        qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $DISKS_DIR/spec2017_disk_$addr.qcow2
     fi
 }
 

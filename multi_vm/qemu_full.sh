@@ -1,6 +1,6 @@
-#!/bin/bash -x
+#!/bin/bash 
 
-source command.sh
+source ../command.sh $@
 if [ ! -d $WORKLOADS_DIR ];then
     mkdir $WORKLOADS_DIR
 fi
@@ -65,15 +65,13 @@ fi
 
 # download debian rootfs
 QEMU_IMG="qemu/build/qemu-img"
-:<<!
 while [ ! -f $ROOTFS ];
 do
 	wget https://download.fedoraproject.org/pub/fedora/linux/releases/38/Cloud/aarch64/images/Fedora-Cloud-Base-38-1.6.aarch64.raw.xz || exit 1
 	xz -dk Fedora-Cloud-Base-38-1.6.aarch64.raw.xz
-	$QEMU_IMG resize Fedora-Cloud-Base-38-1.6.aarch64.raw +80G
+	$QEMU_IMG resize Fedora-Cloud-Base-38-1.6.aarch64.raw +5G
 	sleep 1
 done
-!
 
 # build kernel
 KERNEL="linux/arch/arm64/boot/Image"
@@ -103,42 +101,61 @@ sed -i '/127.0.0.1/d' /root/.ssh/known_hosts
 QEMU_BIN="$WORKLOADS_DIR/qemu/build/qemu-system-aarch64"
 BIOS_BIN="/usr/share/edk2/aarch64/QEMU_EFI.silent.fd"
 DISK0_CFG="-drive if=none,file=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0"
-DISK1_CFG="-drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_net.img,format=raw,id=hd2,file.locking=off -device virtio-blk-pci,drive=hd2,bootindex=1"
-DISK2_CFG="-drive if=none,file=$WORKLOADS_DIR/spec2017_disk.img,format=raw,id=hd3,file.locking=off -device virtio-blk-pci,drive=hd3,bootindex=2"
+DISK1_CFG="-drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_net.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1"
+DISK1_CFG="-drive if=none,file=$WORKLOADS_DIR/spec2017_disk_21.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2"
 
-rm -rf /dev/hugepages/libvirt/qemu/1-test
+rm -rf /dev/hugepages1G/libvirt/qemu/1-test
 #./setup_1g_hugepage.sh
-export GLIBC_TUNABLES=glibc.malloc.hugetlb=2
+
 qemu-system-aarch64 --version
 
-PORT=3333
-for ((i = 0;i < 4;i++))
-do
-    echo "i = $i"
+run_vm()
+{
+    addr=`get_string $1`
+    let port=3333+$1
     qemu-system-aarch64 \
-        -nographic \
-        -machine virt,gic-version=max -enable-kvm\
-        -bios $BIOS_BIN \
-        -cpu max -smp cpus=1 \
-        -m 4G \
-	-qmp unix:/tmp/qmp-test2,server,nowait \
-        -drive if=none,file=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$i.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0 \
-        $DISK1_CFG \
-        $DISK2_CFG \
-        -net nic -net user,hostfwd=tcp::$PORT-:22 & 
-    let PORT=$PORT+1
+            -nographic \
+            -machine virt,gic-version=max -enable-kvm\
+            -bios $BIOS_BIN \
+            -cpu max -smp cpus=1 \
+            -m 4G \
+	    -qmp unix:/tmp/qmp-test$addr,server,nowait \
+            -drive if=none,file=$WORKLOADS_DIR/disks/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0 \
+	    -drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_net_$1.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1 \
+	    -drive if=none,file=$WORKLOADS_DIR/disks/spec2017_disk_$addr.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2 \
+            -net nic -net user,hostfwd=tcp::${port}-:22 & 
+}
+
+let vm_end=$vm_start+$COPIES
+
+for ((i = $vm_start;i < $vm_end;i++))
+do
+    addr=`get_string $i`
+    let port=3333+$i
+    qemu-system-aarch64 \
+            -nographic \
+            -machine virt,gic-version=max -enable-kvm\
+            -bios $BIOS_BIN \
+            -cpu max -smp cpus=1 \
+            -m 4G \
+            -qmp unix:/tmp/qmp-test$addr,server,nowait \
+            -drive if=none,file=$WORKLOADS_DIR/disks/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0 \
+            -drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_net_$i.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1 \
+            -drive if=none,file=$WORKLOADS_DIR/disks/spec2017_disk_$addr.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2 \
+            -net nic -net user,hostfwd=tcp::${port}-:22 &
 done
-exit 0
-qemu-system-aarch64 \
-        -nographic \
-        -machine virt,gic-version=max -enable-kvm\
-        -bios $BIOS_BIN \
-        -cpu max -smp cpus=1 \
-        -m 4G \
-	-qmp unix:/tmp/qmp-test2,server,nowait \
-        $DISK0_CFG \
-        $DISK1_CFG \
-        $DISK2_CFG \
-        -net nic -net user,hostfwd=tcp::3333-:22 \
-        2>&1 | tee $WORKLOADS_DIR/log.txt & 
-	#-object '{"qom-type":"memory-backend-file","id":"pc.ram","mem-path":"/dev/hugepages/libvirt/qemu/1-test","share":true,"x-use-canonical-path-for-ramblock-id":false,"prealloc":true,"size":137438953472}' \
+
+echo "check vms online"
+res=0
+while [ $res -ne $COPIES ]
+do
+    check_vms_online
+    res=$?
+    sleep 5
+done
+echo "All vms online"
+
+jobs -l
+
+set -o monitor
+disown -a

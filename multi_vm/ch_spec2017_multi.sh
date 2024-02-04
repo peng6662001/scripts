@@ -23,12 +23,12 @@ if [ $cpu_name == "altra" ];then
 fi
 
 KERNEL=`ssh_command_ip 192.168.2.2 'uname -r'`
-result_dir="/home/cloud/log_"${cpu_name}"_clh_"$KERNEL
+result_dir="/home/cloud/log_"${cpu_name}"_"$KERNEL
 
 one_spec2017_test()
 {
     addr=`get_string $1`
-    SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_"$addr
+    SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_clh_"$addr
     if [ $BUILD_OPT == "rebuild" ];then
 	ssh_command_ip 192.168.$1.2 "sudo rm -rf ${result_dir}_$addr"
     fi
@@ -52,6 +52,5 @@ do
 done
 
 killall perf
-killall cloud-hypervisor
 
 reset
