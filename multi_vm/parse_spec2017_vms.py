@@ -2,7 +2,7 @@
 import csv, sys, os
 import pandas as pd
 
-import parse_perf
+import parse_perf_vms
 
 full_list = {}
 host_all_data = {}
@@ -148,12 +148,27 @@ def save_cases_result():
     cases_df.to_csv('full_cases_data.csv', encoding='utf-8')
 
 
+clh_perf = None
+host_perf = None
+
+
 def file_parse(parent_dir,file_array):
+    global clh_perf
+    global host_perf
     for case in spec2017_cases:
         for f in file_array:
             path = os.path.abspath(f)
             if case in path:
-                parse_spec2017_csv(parent_dir[-15:], f)
+                if "clh.csv" in path:
+                    clh_perf = parse_perf_vms.parse_dir(".", os.path.dirname(path))  # Parse perf log
+                elif "host.csv" in path:
+                    host_perf = parse_perf_vms.parse_dir(".", os.path.dirname(path))
+                    diff_perf = parse_perf_vms.getDiff(host_perf, clh_perf)
+                    full_list['host_' + parent_dir] = host_perf
+                    full_list['clh_' + parent_dir] = clh_perf
+                    full_list['diff' + parent_dir] = diff_perf
+                else:
+                    parse_spec2017_csv(parent_dir[-15:], f)
 
 
 def parse_unit(dir_name):                                                       # Parse a log directory
@@ -165,7 +180,8 @@ def parse_unit(dir_name):                                                       
     count = 0
     for f in files:
         base_name = os.path.basename(f)
-        if base_name.endswith(".csv") and base_name.startswith("CPU2017"):
+        # if base_name.endswith(".csv") and base_name.startswith("CPU2017"):
+        if base_name.endswith(".csv"):
             file_arrary.append(f)
             count += 1
 
@@ -181,16 +197,16 @@ for temp in os.listdir(dir_name):
     file_path = os.path.join(dir_name, temp)
     if os.path.isdir(file_path):
         parse_unit(file_path)
-    else:
-        perf_list = parse_perf.parse_dir(".", dir_name)  # Parse perf log
-        if perf_list is not None:
-            full_list.update(perf_list)
+    # else:
+    #     perf_list = parse_perf.parse_dir(".", dir_name)  # Parse perf log
+    #     if perf_list is not None:
+    #         full_list.update(perf_list)
 
 print("Complete")
 
 full_df = pd.DataFrame(full_list)
 # full_df['mean'] = full_df.mean(axis=1)
-# full_df.round(2).to_csv('full_data.csv', encoding='utf-8')
+full_df.round(2).to_csv('full_data.csv', encoding='utf-8')
 
 if compat_data:
     save_cases_result()
