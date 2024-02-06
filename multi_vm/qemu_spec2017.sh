@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 PARAM_NUM=$#
 
 source command.sh $@
@@ -34,7 +34,12 @@ if [ $1 == "create_disk" ];then
     exit 0
 fi
 
-vm_csv_name=$LOG_DIR/qemu.csv
+source qemu_full.sh $@
+run_all_vms
+wait_all_vms_onine
+
+DIR="COPY"`get_string $COPIES`
+vm_csv_name=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/qemu.csv
 
 #create_disk
 python cpu_affinity.py -s /tmp/qmp-test2 {1..40}
@@ -48,8 +53,6 @@ fi
 
 #ssh_command "sudo find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -maxdepth 2 -iname run -exec rm -rf {} \;"
 
-DIR="COPY"`get_string $COPIES`
-vm_csv_name=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/qemu.csv
 KERNEL=`ssh_command 3335 'uname -r'`
 result_dir="/home/cloud/log_"${cpu_name}"_"$KERNEL
 
@@ -86,4 +89,5 @@ do
 done
 
 killall perf
+killall qemu-system-aarch64
 reset

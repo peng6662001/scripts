@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 ADDR=127.0.0.1
 PORT=3333
 USER=cloud
@@ -315,12 +315,10 @@ prepare_spec2017()
 
 prepare_disks()
 {
-    if [ $BUILD_OPT == "rebuild" ];then
-	addr=`get_string $1`
-        echo cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
-        cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
-        qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $DISKS_DIR/spec2017_disk_$addr.qcow2
-    fi
+    addr=`get_string $1`
+    echo cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
+    cp -f $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_rebuild.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
+    qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $DISKS_DIR/spec2017_disk_$addr.qcow2
 }
 
 if [ "$1" == "build_edk2" ];then

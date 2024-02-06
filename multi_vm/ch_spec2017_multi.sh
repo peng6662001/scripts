@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 PARAM_NUM=$#
 
 source ../command.sh $@
@@ -52,5 +52,5 @@ do
 done
 
 killall perf
-
+killall cloud-hypervisor
 reset

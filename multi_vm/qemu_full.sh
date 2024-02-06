@@ -98,13 +98,6 @@ popd
 
 sed -i '/127.0.0.1/d' /root/.ssh/known_hosts
 
-QEMU_BIN="$WORKLOADS_DIR/qemu/build/qemu-system-aarch64"
-BIOS_BIN="/usr/share/edk2/aarch64/QEMU_EFI.silent.fd"
-DISK0_CFG="-drive if=none,file=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0"
-DISK1_CFG="-drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_net.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1"
-DISK1_CFG="-drive if=none,file=$WORKLOADS_DIR/spec2017_disk_21.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2"
-
-rm -rf /dev/hugepages1G/libvirt/qemu/1-test
 #./setup_1g_hugepage.sh
 
 qemu-system-aarch64 --version
@@ -116,7 +109,7 @@ run_vm()
     qemu-system-aarch64 \
             -nographic \
             -machine virt,gic-version=max -enable-kvm\
-            -bios $BIOS_BIN \
+            -bios /usr/share/edk2/aarch64/QEMU_EFI.silent.fd \
             -cpu max -smp cpus=1 \
             -m 4G \
 	    -qmp unix:/tmp/qmp-test$addr,server,nowait \
@@ -126,36 +119,26 @@ run_vm()
             -net nic -net user,hostfwd=tcp::${port}-:22 & 
 }
 
-let vm_end=$vm_start+$COPIES
+run_all_vms()
+{
+    rm -rf /dev/hugepages1G/libvirt/qemu/1-test
+    let vm_end=$vm_start+$COPIES
+    
+    for ((i = $vm_start;i < $vm_end;i++))
+    do
+        run_vm $i
+    done
+}
 
-for ((i = $vm_start;i < $vm_end;i++))
-do
-    addr=`get_string $i`
-    let port=3333+$i
-    qemu-system-aarch64 \
-            -nographic \
-            -machine virt,gic-version=max -enable-kvm\
-            -bios $BIOS_BIN \
-            -cpu max -smp cpus=1 \
-            -m 4G \
-            -qmp unix:/tmp/qmp-test$addr,server,nowait \
-            -drive if=none,file=$WORKLOADS_DIR/disks/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0 \
-            -drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_net_$i.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1 \
-            -drive if=none,file=$WORKLOADS_DIR/disks/spec2017_disk_$addr.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2 \
-            -net nic -net user,hostfwd=tcp::${port}-:22 &
-done
-
-echo "check vms online"
-res=0
-while [ $res -ne $COPIES ]
-do
-    check_vms_online
-    res=$?
-    sleep 5
-done
-echo "All vms online"
-
-jobs -l
-
-set -o monitor
-disown -a
+wait_all_vms_onine()
+{
+    echo "check vms online"
+    res=0
+    while [ $res -ne $COPIES ]
+    do
+        check_vms_online
+        res=$?
+        sleep 5
+    done
+    echo "All vms online"
+}
