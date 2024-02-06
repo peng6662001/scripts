@@ -64,7 +64,23 @@ def getCaseValue(list_data, title, cases_data):
     list_data[title]['copies'] = ''
 
 
+old_res = {}
+
+
+def sum_res(res):
+    global old_res
+    if len(old_res) == 0:
+        old_res = res
+    else:
+        for case in spec2017_cases:
+            if res[case] is not "":
+                old_res[case] = old_res[case] + res[case]
+        old_res['Seconds'] = old_res['Seconds'] + res['Seconds']
+        old_res['SPECrate2017_int_base'] = old_res['SPECrate2017_int_base'] + res['SPECrate2017_int_base']
+
+
 def parse_spec2017_csv(pardir, f):
+    global old_res
     with open(f, encoding='UTF-8') as temp_f:
         # get No of columns in each line
         col_count = [len(l.split(",")) for l in temp_f.readlines()]
@@ -84,8 +100,18 @@ def parse_spec2017_csv(pardir, f):
     pardir_name = os.path.basename(os.path.abspath(os.path.join(path, os.pardir)))
     copy_count = os.path.basename(os.path.abspath(os.path.join(path, os.pardir, os.pardir)))[-2:]
 
-    key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("-")[0] + "_" + base_name[-2:]
-    full_list[key] = res
+    key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("-")[0]
+
+    if 'clh' in pardir_name or 'qemu' in pardir_name:
+        ncopy = int(copy_count)
+        nIdx = int(base_name[-2:]) - 1
+        sum_res(res)
+
+        if ncopy == nIdx:
+            full_list[key] = old_res
+            old_res = {}
+    else:
+        full_list[key] = res
 
     if compat_data:
         if '_clh_' in base_name:
