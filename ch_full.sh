@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 #2023.01.10 version 1.0
 
@@ -82,8 +82,9 @@ $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
         --cpus boot=40,affinity=[0@[1],1@[2],2@[3],3@[4],4@[5],5@[6],6@[7],7@[8],8@[9],9@[10],10@[11],11@[12],12@[13],13@[14],14@[15],15@[16],16@[17],17@[18],18@[19],19@[20],20@[21],21@[22],22@[23],23@[24],24@[25],25@[26],26@[27],27@[28],28@[29],29@[30],30@[31],31@[32],32@[33],33@[34],34@[35],35@[36],36@[37],37@[38],38@[39],39@[40]] \
         --memory size=128G,hugepages=on,hugepage_size=1G,prefault=on \
         --kernel $WORKLOADS_DIR/CLOUDHV_EFI.fd \
-        --disk path=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw \
-        --disk path=$WORKLOADS_DIR/cloudinit/cloudinit_net.img,iommu=on \
+        --disk path=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_02.raw \
+        --disk path=$WORKLOADS_DIR/spec2017_disk.qcow2 \
+        --disk path=$WORKLOADS_DIR/cloudinit/cloudinit_net_2.img,iommu=on \
         --vsock cid=3,socket=/tmp/vsock \
 	--serial tty --console off \
         --net id=net123,tap=,mac=12:34:56:78:90:ab,ip=192.168.249.1,mask=255.255.255.0 & #& exit

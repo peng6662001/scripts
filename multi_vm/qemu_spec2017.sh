@@ -42,7 +42,7 @@ DIR="COPY"`get_string $COPIES`
 vm_csv_name=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/qemu.csv
 
 #create_disk
-python cpu_affinity.py -s /tmp/qmp-test2 {1..40}
+#python cpu_affinity.py -s /tmp/qmp-test2 {1..40}
 
 if [ $cpu_name == "one" ];then
     perf stat -C 2 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,STALL_BACKEND_TLB:G,STALL_BACKEND_CACHE:G,STALL_BACKEND_MEM:G,mem_access:G,l1d_tlb:G,l1d_tlb_refill:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,rd80d:G,stall_slot_backend:G,op_spec:G,op_retired:G,STALL_BACKEND_RESOURCE:G -I 1000 -x , -o $vm_csv_name &
@@ -69,7 +69,10 @@ one_spec2017_test()
         ssh_command "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
         ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo rm -rf spec2017/$result_dir && sudo ./high_perf.sh && sudo ./full_test.sh"
     else
-        ssh_command $port "export GLIBC_TUNABLES=glibc.malloc.hugetlb=2 && sudo rm -rf ${result_dir}_$addr/result && cd /home/amptest/ampere_spec2017/ && sudo ./high_perf.sh && sudo ./run_spec2017.sh --config=ampere_aarch64_vm --output_root ${result_dir}_$addr --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION"
+        ssh_command $port "export GLIBC_TUNABLES=glibc.malloc.hugetlb=2 && sudo rm -rf ${result_dir}_$addr/result && cd /home/amptest/ampere_spec2017/ && sudo ./high_perf.sh && sudo ./run_spec2017.sh --config=ampere_aarch64_vm --output_root ${result_dir}_$addr --iterations $ITER --copies 1 --$BUILD_OPT --action run $ACTION"
+    fi
+    if [ $1 -eq 2 ];then
+	killall perf
     fi
     scp_pull $port "${result_dir}_$addr/result/" $SAVE_DIR/
     ssh_command $port "sudo shutdown -h now"
@@ -84,10 +87,10 @@ done
 res=1
 while [ $res -ne 0 ]
 do
-    res=`pgrep qemu-system-aarch64|wc -l`
+    res=`pgrep qemu-system|wc -l`
     sleep 10
 done
+echo "test complete"
 
-killall perf
 killall qemu-system-aarch64
 reset
