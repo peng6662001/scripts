@@ -73,7 +73,7 @@ def sum_res(res):
         old_res = res
     else:
         for case in spec2017_cases:
-            if res[case] is not "":
+            if res[case] != "":
                 old_res[case] = old_res[case] + res[case]
         old_res['Seconds'] = old_res['Seconds'] + res['Seconds']
         old_res['SPECrate2017_int_base'] = old_res['SPECrate2017_int_base'] + res['SPECrate2017_int_base']
@@ -175,48 +175,62 @@ def save_cases_result():
 
 
 clh_perf = None
+qemu_perf = None
 host_perf = None
+
+
+def collect_perf(parent_dir):
+    global clh_perf
+    global host_perf
+    global qemu_perf
+    host_clh_diff = parse_perf_vms.getDiff(host_perf, clh_perf)
+    host_qemu_diff = parse_perf_vms.getDiff(host_perf, qemu_perf)
+    full_list['host_' + parent_dir] = host_perf
+    full_list['qemu_' + parent_dir] = qemu_perf
+    full_list['clh_' + parent_dir] = clh_perf
+    full_list['H_Q_' + parent_dir] = host_qemu_diff
+    full_list['H_C_' + parent_dir] = host_clh_diff
+    host_perf = None
+    qemu_perf = None
+    clh_perf = None
 
 
 def file_parse(parent_dir,file_array):
     global clh_perf
     global host_perf
+    global qemu_perf
     for case in spec2017_cases:
         for f in file_array:
             path = os.path.abspath(f)
             if case in path:
                 if "clh.csv" in path:
                     clh_perf = parse_perf_vms.parse_dir(".", os.path.dirname(path))  # Parse perf log
+                elif "qemu.csv" in path:
+                    qemu_perf = parse_perf_vms.parse_dir(".", os.path.dirname(path))
                 elif "host.csv" in path:
                     host_perf = parse_perf_vms.parse_dir(".", os.path.dirname(path))
-                    diff_perf = parse_perf_vms.getDiff(host_perf, clh_perf)
-                    full_list['host_' + parent_dir] = host_perf
-                    full_list['clh_' + parent_dir] = clh_perf
-                    full_list['diff' + parent_dir] = diff_perf
                 else:
                     parse_spec2017_csv(parent_dir[-15:], f)
 
 
 def parse_unit(dir_name):                                                       # Parse a log directory
     files.clear()
-    dirAll(dir_name)
     parent_dir = os.path.basename(dir_name)
+    dirAll(dir_name)
 
-    file_arrary = []
-    count = 0
-    for f in files:
-        base_name = os.path.basename(f)
-        # if base_name.endswith(".csv") and base_name.startswith("CPU2017"):
-        if base_name.endswith(".csv"):
-            file_arrary.append(f)
-            count += 1
+    for case in spec2017_cases:
+        file_arrary = []
+        count = 0
+        for f in files:
+            base_name = os.path.basename(f)
+            # if base_name.endswith(".csv") and base_name.startswith("CPU2017"):
+            if base_name.endswith(".csv") and case in f:
+                file_arrary.append(f)
+                count += 1
 
-    if count == 3:
-        tmp = file_arrary[1]
-        file_arrary[1] = file_arrary[2]
-        file_arrary[2] = tmp
-
-    file_parse(parent_dir, file_arrary)
+        if len(file_arrary) != 0:
+            file_parse(parent_dir, file_arrary)
+            collect_perf(case[0:3]+"_" + parent_dir[-2:])
 
 
 for temp in os.listdir(dir_name):

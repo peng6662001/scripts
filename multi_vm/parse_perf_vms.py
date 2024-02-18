@@ -229,7 +229,6 @@ def getDiff(host,vm):
     return cal_diff(host, vm)
 
 
-
 def parse_dir(parentDir,dir):
     res_host = None
     res_qemu = None
@@ -242,7 +241,7 @@ def parse_dir(parentDir,dir):
     if os.path.exists(os.path.join(dir, 'qemu.csv')):
         data_qemu = read_csv(os.path.join(dir, 'qemu.csv'))
         res_qemu = cal_data(data_qemu)
-        full_list['qemu_' + parentDir] = res_qemu
+        return res_qemu
 
     if os.path.exists(os.path.join(dir, 'clh.csv')):
         data_clh = read_csv(os.path.join(dir, 'clh.csv'))
