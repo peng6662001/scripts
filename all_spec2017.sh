@@ -6,9 +6,9 @@ if [ $# -lt 3 ];then
     showHelp all 
 fi
 
-./host_spec2017.sh $@ & #2>&1 > $LOG_DIR/run.log
-./qemu_spec2017.sh $@ & #2>&1 >> $LOG_DIR/run.log
-./ch_spec2017.sh $@ &  #2>&1 >> $LOG_DIR/run.log
+./host_spec2017.sh $@ &
+./qemu_spec2017.sh $@ &
+./ch_spec2017.sh $@ &
 
 res=1
 while [ $res -ne 0 ]

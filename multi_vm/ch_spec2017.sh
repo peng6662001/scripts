@@ -10,7 +10,7 @@ fi
 SAVE_DIR=$LOG_DIR/$COPIES/clh
 DIR="COPY"`get_string $COPIES`
 vm_csv_name=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/clh.csv
-./ch_full_multi.sh $@
+./ch_full.sh $@
 ps aux | grep cloud-hypervisor | wc -l
 
 sleep 5
@@ -34,9 +34,10 @@ one_spec2017_test()
     fi
     ssh_command_ip 192.168.$1.2 "sudo rm -rf ${result_dir}_$addr/result"
     ssh_command_ip 192.168.$1.2 "cd /home/amptest/ampere_spec2017/ && sudo ./high_perf.sh && sudo ./run_spec2017_vm.sh --config=ampere_aarch64_vm --output_root ${result_dir}_$addr --iterations $ITER --copies 1 --$BUILD_OPT --action run $ACTION"
-    if [ $1 -eq 2 ];then
-        killall perf
+    if [ $GROUP -ne 1 ];then
+       killall perf
     fi
+
     scp_pull_ip 192.168.$1.2 "${result_dir}_$addr/result/" $SAVE_DIR/
     ssh_command_ip 192.168.$1.2 "sudo shutdown -h now" 
 }
@@ -54,6 +55,5 @@ do
     sleep 10
 done
 
-killall perf
 killall cloud-hypervisor
 reset

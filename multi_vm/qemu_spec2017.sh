@@ -72,7 +72,7 @@ one_spec2017_test()
     else
         ssh_command $port "export GLIBC_TUNABLES=glibc.malloc.hugetlb=2 && sudo rm -rf ${result_dir}_$addr/result && cd /home/amptest/ampere_spec2017/ && sudo ./high_perf.sh && sudo ./run_spec2017.sh --config=ampere_aarch64_vm --output_root ${result_dir}_$addr --iterations $ITER --copies 1 --$BUILD_OPT --action run $ACTION"
     fi
-    if [ $1 -eq 2 ];then
+    if [ $GROUP -ne 1 ];then
 	killall perf
     fi
     scp_pull $port "${result_dir}_$addr/result/" $SAVE_DIR/
