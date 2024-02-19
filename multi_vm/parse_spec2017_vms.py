@@ -103,13 +103,16 @@ def parse_spec2017_csv(pardir, f):
     key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("-")[0]
 
     if 'clh' in pardir_name or 'qemu' in pardir_name:
-        ncopy = int(copy_count)
-        nIdx = int(base_name[-2:]) - 1
-        sum_res(res)
+        if base_name[-7:] == "_single":
+            full_list[key] = res
+        else:
+            nCopy = int(copy_count)
+            nIdx = int(base_name[-2:]) - 1
+            sum_res(res)
 
-        if ncopy == nIdx:
-            full_list[key] = old_res
-            old_res = {}
+            if nCopy == nIdx:
+                full_list[key] = old_res
+                old_res = {}
     else:
         full_list[key] = res
 
@@ -210,7 +213,7 @@ def file_parse(parent_dir,file_array):
                 elif "host.csv" in path:
                     host_perf = parse_perf_vms.parse_dir(".", os.path.dirname(path))
                 else:
-                    parse_spec2017_csv(parent_dir[-15:], f)
+                    parse_spec2017_csv(parent_dir, f)
 
 
 def parse_unit(dir_name):                                                       # Parse a log directory
@@ -246,7 +249,7 @@ print("Complete")
 
 full_df = pd.DataFrame(full_list)
 # full_df['mean'] = full_df.mean(axis=1)
-full_df.round(2).to_csv('full_data.csv', encoding='utf-8')
+full_df.round(2).to_csv(os.path.join(dir_name,'full_data.csv'), encoding='utf-8')
 
 if compat_data:
     save_cases_result()
