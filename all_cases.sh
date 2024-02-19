@@ -6,10 +6,14 @@ test_copies()
 {
     COPYS=1
     
-    while ((COPYS<=32))
+    while ((COPYS<=1))
     do
-        sudo ./all_spec2017.sh 1 $COPYS "$1"
-	#echo all_spec2017.sh 1 $COPYS "$1"
+	DIR="COPY"`get_string $COPYS` 
+	echo all_spec2017.sh 1 $COPYS "$1"
+	mkdir -p $LOG_DIR/$DIR/host_`echo $1|sed 's/ /_/g'`
+	mkdir -p $LOG_DIR/$DIR/clh_`echo $1|sed 's/ /_/g'`
+	mkdir -p $LOG_DIR/$DIR/qemu_`echo $1|sed 's/ /_/g'`
+        ./all_spec2017.sh log_dir $LOG_DIR 1 $COPYS "$1"
         ((COPYS *= 2))
     done
 }

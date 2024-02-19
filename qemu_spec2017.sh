@@ -34,7 +34,8 @@ if [ $1 == "create_disk" ];then
     exit 0
 fi
 
-vm_csv_name=$LOG_DIR/qemu.csv
+DIR="COPY"`get_string $COPIES`
+vm_csv_name=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/qemu.csv
 
 create_disk
 python cpu_affinity.py -s /tmp/qmp-test2 {41..80}
@@ -47,18 +48,16 @@ if [ $cpu_name == "altra" ];then
 fi
 
 ssh_command "sudo find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -maxdepth 2 -iname run -exec rm -rf {} \;"
-
-result_dir=${cpu_name}"_qemu_"`ssh_command 'uname -r'`
 if [ "$ACTION" == "copies_intrate" ];then
     scp_push full_test.sh "/home/cloud/"
     ssh_command "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"
     ssh_command "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
-    ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo rm -rf spec2017/$result_dir && sudo ./high_perf.sh && sudo ./full_test.sh"
+    ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
 else
-    ssh_command "export GLIBC_TUNABLES=glibc.malloc.hugetlb=2 && cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo rm -rf spec2017/$result_dir && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION"
+    ssh_command "export GLIBC_TUNABLES=glibc.malloc.hugetlb=2 && cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION"
 fi
-ssh_command "sudo mv /home/amptest/ampere_spec2017/spec2017/result /home/amptest/ampere_spec2017/spec2017/$result_dir"
-scp_pull "/home/amptest/ampere_spec2017/spec2017/$result_dir" $LOG_DIR
+
+scp_pull "/home/amptest/ampere_spec2017/spec2017/result" $LOG_DIR
 if [ $GROUP -ne 1 ];then
     killall perf
 fi

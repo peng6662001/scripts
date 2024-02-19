@@ -10,7 +10,9 @@ result_dir=${cpu_name}"_"`uname -r`
 
 host_test()
 {
-    csv_name=$LOG_DIR/host.csv
+    DIR="COPY"`get_string $COPIES`
+    SAVE_DIR=$LOG_DIR/$DIR/host_`echo $ACTION|sed 's/ /_/g'`/`uname -r`
+    csv_name=$LOG_DIR/$DIR/host_`echo $ACTION|sed 's/ /_/g'`/host.csv
     if [ "$ACTION" == "copies_intrate" ];then
         cp full_test.sh /home/amptest/ampere_spec2017/
     fi
@@ -30,16 +32,17 @@ host_test()
         perf stat -C 1 -e cycles,instructions,stall_backend,stall_frontend,mem_access,l2d_tlb,l2d_tlb_refill,dtlb_walk,inst_spec,inst_retired -I 1000 -x , -o $csv_name &
     fi
 
+    rm -rf "/home/amptest/ampere_spec2017/spec2017/result"
     if [ "$ACTION" == "copies_intrate" ];then
 	sudo chmod a+x full_test.sh
         ./full_test.sh
     else
-        ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION
+        ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION
     fi
     if [ $GROUP -ne 1 ];then
 	killall perf
     fi
-    sudo mv /home/amptest/ampere_spec2017/spec2017/result $LOG_DIR/$result_dir
+    sudo mv /home/amptest/ampere_spec2017/spec2017/result $SAVE_DIR
     popd
 }
 

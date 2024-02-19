@@ -3,9 +3,6 @@
 #2023.01.10 version 1.0
 
 source command.sh
-if [ ! -e $WORKLOADS_DIR ];then
-  mkdir $WORKLOADS_DIR
-fi
 
 ROOTFS="$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw"
 
@@ -86,8 +83,8 @@ $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
         --memory size=128G,hugepages=on,hugepage_size=1G,prefault=on \
         --kernel $WORKLOADS_DIR/CLOUDHV_EFI.fd \
         --disk path=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_clh.raw \
-        --disk path=$WORKLOADS_DIR/spec2017_disk_clh.qcow2 \
         --disk path=$WORKLOADS_DIR/cloud_init_clh.img,iommu=on \
+        --disk path=$WORKLOADS_DIR/spec2017_disk_clh.qcow2 \
         --vsock cid=3,socket=/tmp/vsock \
 	--serial tty --console off \
         --net id=net123,tap=,mac=12:34:56:78:90:ab,ip=192.168.249.1,mask=255.255.255.0 & #& exit

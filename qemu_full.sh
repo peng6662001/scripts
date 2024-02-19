@@ -69,7 +69,7 @@ while [ ! -f $ROOTFS ];
 do
 	wget https://download.fedoraproject.org/pub/fedora/linux/releases/38/Cloud/aarch64/images/Fedora-Cloud-Base-38-1.6.aarch64.raw.xz || exit 1
 	xz -dk Fedora-Cloud-Base-38-1.6.aarch64.raw.xz
-	$QEMU_IMG resize Fedora-Cloud-Base-38-1.6.aarch64.raw +80G
+	$QEMU_IMG resize Fedora-Cloud-Base-38-1.6.aarch64.raw +5G
 	sleep 1
 done
 

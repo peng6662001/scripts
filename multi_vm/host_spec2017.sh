@@ -40,7 +40,9 @@ host_test()
     else
         ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION
     fi
-    killall perf
+    if [ $GROUP -ne 1 ];then
+	killall perf
+    fi
     sudo mv /home/amptest/ampere_spec2017/spec2017/result $SAVE_DIR
     popd
     #python3 ./process_csv.py $csv_name
