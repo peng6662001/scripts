@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -x 
 PARAM_NUM=$#
 
 source command.sh $@
@@ -47,6 +47,8 @@ if [ $cpu_name == "altra" ];then
     perf stat -C 41 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,mem_access:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,inst_spec:G,inst_retired:G -I 1000 -x , -o $vm_csv_name &
 fi
 
+SAVE_DIR=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/`ssh_command 'uname -r'`"_single"
+
 ssh_command "sudo find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -maxdepth 2 -iname run -exec rm -rf {} \;"
 if [ "$ACTION" == "copies_intrate" ];then
     scp_push full_test.sh "/home/cloud/"
@@ -57,7 +59,7 @@ else
     ssh_command "export GLIBC_TUNABLES=glibc.malloc.hugetlb=2 && cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION"
 fi
 
-scp_pull "/home/amptest/ampere_spec2017/spec2017/result" $LOG_DIR
+scp_pull "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR
 if [ $GROUP -ne 1 ];then
     killall perf
 fi

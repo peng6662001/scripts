@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 PARAM_NUM=$#
 
 source command.sh $@
@@ -22,7 +22,7 @@ if [ $cpu_name == "altra" ];then
 fi
 
 result_dir="/home/cloud/log_"${cpu_name}"_"`ssh_command_ch 'uname -r'`
-SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_clh"
+SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/`ssh_command_ch 'uname -r'`"_single"
 
 ssh_command_ch "sudo rm -rf /home/amptest/ampere_spec2017/spec2017/result"
 
@@ -35,7 +35,7 @@ else
     ssh_command_ch "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo rm -rf spec2017/$result_dir && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION"
 fi
 
-scp_pull_ch "/home/amptest/ampere_spec2017/spec2017/result" $LOG_DIR
+scp_pull_ch "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR
 
 if [ $GROUP -ne 1 ];then
     killall perf
