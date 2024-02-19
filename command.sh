@@ -7,6 +7,7 @@ cpu_name="host"
 vm_count=32
 vm_start=2
 COPIES=32
+GROUP=0
 let vm_end=$vm_start+$vm_count
 MULTI_VM=${PWD:0-8:8}
 BUILD_OPT=nobuild		#it's better to rebuild once to generate necessary files to reduce the total test time,then modify it to nobuild
@@ -56,6 +57,7 @@ if [ "$1" == "log_dir" ];then
 	shift
 	shift
 	ACTION=$@
+	GROUP=1
 else
     ITER=$1
     COPIES=$2

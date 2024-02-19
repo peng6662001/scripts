@@ -100,12 +100,15 @@ sed -i '/127.0.0.1/d' /root/.ssh/known_hosts
 
 QEMU_BIN="$WORKLOADS_DIR/qemu/build/qemu-system-aarch64"
 BIOS_BIN="/usr/share/edk2/aarch64/QEMU_EFI.silent.fd"
-DISK0_CFG="-drive if=none,file=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_02.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0"
-DISK1_CFG="-drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_net_2.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1"
-DISK1_CFG="-drive if=none,file=$WORKLOADS_DIR/spec2017_disk.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2"
+DISK0_CFG="-drive if=none,file=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_qemu.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0"
+DISK1_CFG="-drive if=none,file=$WORKLOADS_DIR/cloud_init_qemu.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1"
+DISK2_CFG="-drive if=none,file=$WORKLOADS_DIR/spec2017_disk_qemu.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2"
 
 rm -rf /dev/hugepages1G/libvirt/qemu/1-test
-./setup_1g_hugepage.sh
+#./setup_1g_hugepage.sh
+
+cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_rebuild.raw $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_qemu.raw
+qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $WORKLOADS_DIR/spec2017_disk_qemu.qcow2
 
 qemu-system-aarch64 --version
 qemu-system-aarch64 \
@@ -118,6 +121,7 @@ qemu-system-aarch64 \
         $DISK0_CFG \
         $DISK1_CFG \
         $DISK2_CFG \
-	-object '{"qom-type":"memory-backend-file","id":"pc.ram","mem-path":"/dev/hugepages1G/libvirt/qemu/1-test","share":true,"x-use-canonical-path-for-ramblock-id":false,"prealloc":true,"size":137438953472}' \
         -net nic -net user,hostfwd=tcp::3333-:22 \
         2>&1 | tee $WORKLOADS_DIR/log.txt & 
+	
+#-object '{"qom-type":"memory-backend-file","id":"pc.ram","mem-path":"/dev/hugepages1G/libvirt/qemu/1-test","share":true,"x-use-canonical-path-for-ramblock-id":false,"prealloc":true,"size":137438953472}' \

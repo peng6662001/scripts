@@ -17,7 +17,7 @@ host_test()
 
     pushd /home/amptest/ampere_spec2017/
     sed -i 's/physcpubind=$SPECCOPYNUM/physcpubind=`expr $SPECCOPYNUM + 1`/' /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64.cfg
-    find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -maxdepth 2 -iname run -exec rm -rf {} \;
+    #find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -maxdepth 2 -iname run -exec rm -rf {} \;
     rm -rf spec2017/result
     rm -rf spec2017/$result_dir
     ./high_perf.sh
@@ -36,11 +36,11 @@ host_test()
     else
         ./run_spec2017.sh --iterations $ITER --copies $COPIES --nobuild --action run $ACTION
     fi
-    killall perf
-    sudo mv /home/amptest/ampere_spec2017/spec2017/result /home/amptest/ampere_spec2017/spec2017/$result_dir
-    cp -r "/home/amptest/ampere_spec2017/spec2017/$result_dir" $LOG_DIR
+    if [ $GROUP -ne 1 ];then
+	killall perf
+    fi
+    sudo mv /home/amptest/ampere_spec2017/spec2017/result $LOG_DIR/$result_dir
     popd
-    #python3 ./process_csv.py $csv_name
 }
 
 host_test

@@ -18,7 +18,7 @@ fi
 test_copies()
 {
     COPYS=1
-    while ((COPYS<=32))
+    while ((COPYS<=16))
     do
 	DIR="COPY"`get_string $COPYS` 
 	echo all_spec2017.sh 1 $COPYS "$1"

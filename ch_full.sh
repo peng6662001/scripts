@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash  
 
 #2023.01.10 version 1.0
 
@@ -78,13 +78,16 @@ ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.249.2"
 rm -rf /dev/hugepages1G/libvirt/qemu/1-test
 ./setup_1g_hugepage.sh
 
+cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_rebuild.raw $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_clh.raw
+qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $WORKLOADS_DIR/spec2017_disk_clh.qcow2
+
 $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
-        --cpus boot=40,affinity=[0@[1],1@[2],2@[3],3@[4],4@[5],5@[6],6@[7],7@[8],8@[9],9@[10],10@[11],11@[12],12@[13],13@[14],14@[15],15@[16],16@[17],17@[18],18@[19],19@[20],20@[21],21@[22],22@[23],23@[24],24@[25],25@[26],26@[27],27@[28],28@[29],29@[30],30@[31],31@[32],32@[33],33@[34],34@[35],35@[36],36@[37],37@[38],38@[39],39@[40]] \
+        --cpus boot=40,affinity=[0@[81],1@[82],2@[83],3@[84],4@[85],5@[86],6@[87],7@[88],8@[89],9@[90],10@[91],11@[92],12@[93],13@[94],14@[95],15@[96],16@[97],17@[98],18@[99],19@[100],20@[101],21@[102],22@[103],23@[104],24@[105],25@[106],26@[107],27@[108],28@[109],29@[110],30@[111],31@[112],32@[113],33@[114],34@[115],35@[116],36@[117],37@[118],38@[119],39@[120]] \
         --memory size=128G,hugepages=on,hugepage_size=1G,prefault=on \
         --kernel $WORKLOADS_DIR/CLOUDHV_EFI.fd \
-        --disk path=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_02.raw \
-        --disk path=$WORKLOADS_DIR/spec2017_disk.qcow2 \
-        --disk path=$WORKLOADS_DIR/cloudinit/cloudinit_net_2.img,iommu=on \
+        --disk path=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_clh.raw \
+        --disk path=$WORKLOADS_DIR/spec2017_disk_clh.qcow2 \
+        --disk path=$WORKLOADS_DIR/cloud_init_clh.img,iommu=on \
         --vsock cid=3,socket=/tmp/vsock \
 	--serial tty --console off \
         --net id=net123,tap=,mac=12:34:56:78:90:ab,ip=192.168.249.1,mask=255.255.255.0 & #& exit
