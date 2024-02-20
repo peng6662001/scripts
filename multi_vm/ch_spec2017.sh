@@ -25,20 +25,15 @@ fi
 one_spec2017_test()
 {
     KERNEL=`ssh_command_ip 192.168.$1.2 'uname -r'`
-    result_dir="/home/cloud/log_"${cpu_name}"_"$KERNEL
 
     addr=`get_string $1`
     SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_"$addr
-    if [ $BUILD_OPT == "rebuild" ];then
-	ssh_command_ip 192.168.$1.2 "sudo rm -rf ${result_dir}_$addr"
-    fi
-    ssh_command_ip 192.168.$1.2 "sudo rm -rf ${result_dir}_$addr/result"
-    ssh_command_ip 192.168.$1.2 "cd /home/amptest/ampere_spec2017/ && sudo ./high_perf.sh && sudo ./run_spec2017_vm.sh --config=ampere_aarch64_vm --output_root ${result_dir}_$addr --iterations $ITER --copies 1 --$BUILD_OPT --action run $ACTION"
+    ssh_command_ip 192.168.$1.2 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result  && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies 1 --$BUILD_OPT --action run $ACTION"
     if [ $GROUP -ne 1 ];then
        killall perf
     fi
 
-    scp_pull_ip 192.168.$1.2 "${result_dir}_$addr/result/" $SAVE_DIR/
+    scp_pull_ip 192.168.$1.2 "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR/
     ssh_command_ip 192.168.$1.2 "sudo shutdown -h now" 
 }
 

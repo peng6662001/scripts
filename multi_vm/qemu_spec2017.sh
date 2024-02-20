@@ -60,7 +60,6 @@ one_spec2017_test()
     let pcpu=39+$1
     
     KERNEL=`ssh_command $port 'uname -r'`
-    result_dir="/home/cloud/log_"${cpu_name}"_"$KERNEL
 
     SAVE_DIR=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_"$addr
     python ../cpu_affinity.py -s /tmp/qmp-test$addr $pcpu
@@ -69,14 +68,14 @@ one_spec2017_test()
         scp_push full_test.sh "/home/cloud/"
         ssh_command "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"
         ssh_command "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
-        ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo rm -rf spec2017/$result_dir && sudo ./high_perf.sh && sudo ./full_test.sh"
+        ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
     else
-        ssh_command $port "export GLIBC_TUNABLES=glibc.malloc.hugetlb=2 && sudo rm -rf ${result_dir}_$addr/result && cd /home/amptest/ampere_spec2017/ && sudo ./high_perf.sh && sudo ./run_spec2017.sh --config=ampere_aarch64_vm --output_root ${result_dir}_$addr --iterations $ITER --copies 1 --$BUILD_OPT --action run $ACTION"
+        ssh_command $port "export GLIBC_TUNABLES=glibc.malloc.hugetlb=2 && cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies 1 --$BUILD_OPT --action run $ACTION"
     fi
     if [ $GROUP -ne 1 ];then
 	killall perf
     fi
-    scp_pull $port "${result_dir}_$addr/result/" $SAVE_DIR/
+    scp_pull $port "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR/
     ssh_command $port "sudo shutdown -h now"
 }
 
