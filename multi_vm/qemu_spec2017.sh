@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -x
 PARAM_NUM=$#
 
 source command.sh $@
@@ -53,15 +53,16 @@ fi
 
 #ssh_command "sudo find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -maxdepth 2 -iname run -exec rm -rf {} \;"
 
-KERNEL=`ssh_command 3335 'uname -r'`
-result_dir="/home/cloud/log_"${cpu_name}"_"$KERNEL
-
 one_spec2017_test()
 {
     addr=`get_string $1`
     let port=3333+$1
     let pcpu=39+$1
-    SAVE_DIR=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_qemu_"$addr
+    
+    KERNEL=`ssh_command $port 'uname -r'`
+    result_dir="/home/cloud/log_"${cpu_name}"_"$KERNEL
+
+    SAVE_DIR=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_"$addr
     python ../cpu_affinity.py -s /tmp/qmp-test$addr $pcpu
 
     if [ "$ACTION" == "copies_intrate" ];then

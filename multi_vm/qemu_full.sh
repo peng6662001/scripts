@@ -106,6 +106,7 @@ run_vm()
 {
     addr=`get_string $1`
     let port=3333+$1
+    prepare_disks $1
     qemu-system-aarch64 \
             -nographic \
             -machine virt,gic-version=max -enable-kvm\

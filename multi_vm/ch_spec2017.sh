@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -x 
 PARAM_NUM=$#
 
 source ../command.sh $@
@@ -22,13 +22,13 @@ if [ $cpu_name == "altra" ];then
     perf stat -C 81 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,mem_access:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,inst_spec:G,inst_retired:G -I 1000 -x , -o $vm_csv_name &
 fi
 
-KERNEL=`ssh_command_ip 192.168.2.2 'uname -r'`
-result_dir="/home/cloud/log_"${cpu_name}"_"$KERNEL
-
 one_spec2017_test()
 {
+    KERNEL=`ssh_command_ip 192.168.$1.2 'uname -r'`
+    result_dir="/home/cloud/log_"${cpu_name}"_"$KERNEL
+
     addr=`get_string $1`
-    SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_clh_"$addr
+    SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_"$addr
     if [ $BUILD_OPT == "rebuild" ];then
 	ssh_command_ip 192.168.$1.2 "sudo rm -rf ${result_dir}_$addr"
     fi
@@ -42,6 +42,7 @@ one_spec2017_test()
     ssh_command_ip 192.168.$1.2 "sudo shutdown -h now" 
 }
 
+let vm_start=$vm_start+16			#qemu use disk 0-15,clh use disk 16-31
 let vm_end=$vm_start+$COPIES
 for ((i=$vm_start;i<$vm_end;i++))
 do
@@ -56,4 +57,3 @@ do
 done
 
 killall cloud-hypervisor
-reset

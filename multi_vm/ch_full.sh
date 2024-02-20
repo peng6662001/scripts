@@ -78,15 +78,17 @@ mkcloudinit
 
 rm -rf /tmp/vsock_*
 
+let vm_start=$vm_start+16
 let vm_end=$vm_start+$COPIES
 
 for ((i = $vm_start;i < $vm_end;i++))
 do
+    prepare_disks $i
     addr=`get_string $i`
     ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.$i.2"
 
     sed -i '/192.168.$i.2/d' /root/.ssh/known_hosts
-    let pcpu=79+$i
+    let pcpu=63+$i		#63+2+16=81
 
     $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
         --cpus boot=1,affinity=[0@[$pcpu]] \
