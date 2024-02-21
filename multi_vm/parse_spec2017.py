@@ -2,7 +2,7 @@
 import csv, sys, os
 import pandas as pd
 
-import parse_perf_vms
+import parse_perf
 
 full_list = {}
 host_all_data = {}
@@ -108,7 +108,9 @@ def parse_spec2017_csv(pardir, f):
         else:
             nCopy = int(copy_count)
             nIdx = int(base_name[-2:]) - 1
-            sum_res(res)
+            if 'clh' in pardir_name:
+                nIdx -= 16
+            sum_res(res)                # Add scores of multi 
 
             if nCopy == nIdx:
                 full_list[key] = old_res
@@ -186,8 +188,8 @@ def collect_perf(parent_dir):
     global clh_perf
     global host_perf
     global qemu_perf
-    host_clh_diff = parse_perf_vms.getDiff(host_perf, clh_perf)
-    host_qemu_diff = parse_perf_vms.getDiff(host_perf, qemu_perf)
+    host_clh_diff = parse_perf.getDiff(host_perf, clh_perf)
+    host_qemu_diff = parse_perf.getDiff(host_perf, qemu_perf)
     full_list['host_' + parent_dir] = host_perf
     full_list['qemu_' + parent_dir] = qemu_perf
     full_list['clh_' + parent_dir] = clh_perf
@@ -207,11 +209,11 @@ def file_parse(parent_dir,file_array):
             path = os.path.abspath(f)
             if case in path:
                 if "clh.csv" in path:
-                    clh_perf = parse_perf_vms.parse_dir(".", os.path.dirname(path))  # Parse perf log
+                    clh_perf = parse_perf.parse_dir(".", os.path.dirname(path))  # Parse perf log
                 elif "qemu.csv" in path:
-                    qemu_perf = parse_perf_vms.parse_dir(".", os.path.dirname(path))
+                    qemu_perf = parse_perf.parse_dir(".", os.path.dirname(path))
                 elif "host.csv" in path:
-                    host_perf = parse_perf_vms.parse_dir(".", os.path.dirname(path))
+                    host_perf = parse_perf.parse_dir(".", os.path.dirname(path))
                 else:
                     parse_spec2017_csv(parent_dir, f)
 
@@ -249,7 +251,7 @@ print("Complete")
 
 full_df = pd.DataFrame(full_list)
 # full_df['mean'] = full_df.mean(axis=1)
-full_df.round(2).to_csv(os.path.join(dir_name,'full_data.csv'), encoding='utf-8')
+full_df.round(2).to_csv(os.path.join(dir_name, 'full_data.csv'), encoding='utf-8')
 
 if compat_data:
     save_cases_result()
