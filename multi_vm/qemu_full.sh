@@ -115,7 +115,7 @@ run_vm()
             -m 4G \
 	    -qmp unix:/tmp/qmp-test$addr,server,nowait \
             -drive if=none,file=$WORKLOADS_DIR/disks/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0 \
-	    -drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_net_$1.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1 \
+	    -drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_$1.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1 \
 	    -drive if=none,file=$WORKLOADS_DIR/disks/spec2017_disk_$addr.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2 \
             -net nic -net user,hostfwd=tcp::${port}-:22 & 
 }

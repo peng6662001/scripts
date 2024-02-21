@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 #2023.01.10 version 1.0
 
@@ -72,7 +72,7 @@ build_edk2
 rm -rf /tmp/vsock
 
 rm -rf /dev/hugepages1G/libvirt/qemu/1-test
-../setup_1g_hugepage.sh
+#../setup_1g_hugepage.sh
 
 mkcloudinit
 
