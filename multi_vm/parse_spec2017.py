@@ -110,7 +110,7 @@ def parse_spec2017_csv(pardir, f):
             nIdx = int(base_name[-2:]) - 1
             if 'clh' in pardir_name:
                 nIdx -= 16
-            sum_res(res)                # Add scores of multi 
+            sum_res(res)                # Add scores of multi
 
             if nCopy == nIdx:
                 full_list[key] = old_res
@@ -188,13 +188,24 @@ def collect_perf(parent_dir):
     global clh_perf
     global host_perf
     global qemu_perf
-    host_clh_diff = parse_perf.getDiff(host_perf, clh_perf)
-    host_qemu_diff = parse_perf.getDiff(host_perf, qemu_perf)
-    full_list['host_' + parent_dir] = host_perf
-    full_list['qemu_' + parent_dir] = qemu_perf
-    full_list['clh_' + parent_dir] = clh_perf
-    full_list['H_Q_' + parent_dir] = host_qemu_diff
-    full_list['H_C_' + parent_dir] = host_clh_diff
+
+    if host_perf is not None:
+        full_list['host_' + parent_dir] = host_perf
+
+    if qemu_perf is not None:
+        full_list['qemu_' + parent_dir] = qemu_perf
+
+    if clh_perf is not None:
+        full_list['clh_' + parent_dir] = clh_perf
+
+    if host_perf is not None and clh_perf is not None:
+        host_clh_diff = parse_perf.getDiff(host_perf, clh_perf)
+        full_list['H_C_' + parent_dir] = host_clh_diff
+
+    if host_perf is not None and qemu_perf is not None:
+        host_qemu_diff = parse_perf.getDiff(host_perf, qemu_perf)
+        full_list['H_Q_' + parent_dir] = host_qemu_diff
+
     host_perf = None
     qemu_perf = None
     clh_perf = None
