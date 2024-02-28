@@ -1,5 +1,5 @@
 #!/bin/bash -x
-DISK0_CFG="-drive if=none,file=../workloads/Fedora-Cloud-Base-38-1.6.aarch64_rebuild.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0"
+DISK0_CFG="-drive if=none,file=../workloads/Fedora-Cloud-Base-38-1.6.aarch64.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0"
 DISK1_CFG="-drive if=none,file=../workloads/cloudinit/cloudinit_2.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1"
 DISK2_CFG="-drive if=none,file=../workloads/spec2017_disk.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2"
 qemu-system-aarch64 --version

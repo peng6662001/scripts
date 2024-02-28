@@ -92,7 +92,7 @@ if [ ! -f $KERNEL ]; then
 	popd
 fi
 
-mkcloudinit
+#mkcloudinit
 
 popd
 

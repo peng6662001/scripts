@@ -74,7 +74,7 @@ rm -rf /tmp/vsock
 rm -rf /dev/hugepages1G/libvirt/qemu/1-test
 #../setup_1g_hugepage.sh
 
-mkcloudinit
+#mkcloudinit
 
 rm -rf /tmp/vsock_*
 
@@ -100,6 +100,7 @@ do
         --vsock cid=$i,socket=/tmp/vsock_$i \
 	--serial off --console off \
         --net id=net_$i,tap=,mac=12:34:56:78:90:$addr,ip=192.168.$i.1,mask=255.255.255.0 & #& exit
+    sleep 1
 done
 res=0
 echo "Wait all vms online"

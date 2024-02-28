@@ -37,11 +37,12 @@ host_test()
 	sudo chmod a+x full_test.sh
         ./full_test.sh
     else
-        ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION
+        ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION -v 35
+        #./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION
     fi
-    if [ $GROUP -ne 1 ];then
-	killall perf
-    fi
+    #if [ $GROUP -ne 1 ];then
+	#killall perf
+    #fi
     sudo mv /home/amptest/ampere_spec2017/spec2017/result $SAVE_DIR
     popd
 }
