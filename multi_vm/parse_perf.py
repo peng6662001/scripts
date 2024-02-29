@@ -112,7 +112,7 @@ def cal_diff(line_host, line_vm):
 def cal_data(full_data):
     cycles_sum = 0.0
     cycles_H_sum = 0.0
-    instructions_sum = 0.0
+    instructions_sum = 1.0
     stall_slot_backend_sum = 0.0
     op_spec_sum = 0.0
     op_retired_sum = 0.0

@@ -8,7 +8,7 @@ full_list = {}
 host_all_data = {}
 qemu_all_data = {}
 clh_all_data = {}
-compat_data = False
+compat_data = True
 
 spec2017_cases = ['500.perlbench_r', '502.gcc_r', '505.mcf_r', '520.omnetpp_r', '523.xalancbmk_r',
                   '525.x264_r', '531.deepsjeng_r', '541.leela_r', '548.exchange2_r', '557.xz_r']
@@ -79,6 +79,16 @@ def sum_res(res):
         old_res['SPECrate2017_int_base'] = old_res['SPECrate2017_int_base'] + res['SPECrate2017_int_base']
 
 
+def compactData(key, res):
+    if compat_data:
+        if 'clh_' in key:
+            getCaseValue(clh_all_data, key, res)
+        elif 'qemu_' in key:
+            getCaseValue(qemu_all_data, key, res)
+        else:
+            getCaseValue(host_all_data, key, res)
+
+
 def parse_spec2017_csv(pardir, f):
     global old_res
     with open(f, encoding='UTF-8') as temp_f:
@@ -92,7 +102,6 @@ def parse_spec2017_csv(pardir, f):
     copies, seconds = read_interation(df, res)
     res['Seconds'] = seconds
     res['SPECrate2017_int_base'] = get_value(df, 'B', 'SPECrate2017_int_base')
-    #res['SPECrate2017_int_peak'] = get_value(df, 'B', 'SPECrate2017_int_peak')
     res['copies'] = copies
 
     path = os.path.dirname(f)
@@ -100,12 +109,21 @@ def parse_spec2017_csv(pardir, f):
     pardir_name = os.path.basename(os.path.abspath(os.path.join(path, os.pardir)))
     copy_count = os.path.basename(os.path.abspath(os.path.join(path, os.pardir, os.pardir)))[-2:]
 
-    key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("-")[0]
+    # key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("-")[0]
+    key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name
+
+    compact_key = "host_" + copy_count
 
     if 'clh' in pardir_name or 'qemu' in pardir_name:
         if base_name[-7:] == "_single":
             full_list[key] = res
+            if "clh" in pardir_name:
+                compact_key = "clh_" + copy_count
+            elif "qemu" in pardir_name:
+                compact_key = "qemu_" + copy_count
+            compactData(compact_key, res)
         else:
+            key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("_")[0]
             nCopy = int(copy_count)
             nIdx = int(base_name[-2:]) - 1
             if 'clh' in pardir_name:
@@ -114,17 +132,16 @@ def parse_spec2017_csv(pardir, f):
 
             if nCopy == nIdx:
                 full_list[key] = old_res
+
+                if "clh" in pardir_name:
+                    compact_key = "clh_" + copy_count
+                elif "qemu" in pardir_name:
+                    compact_key = "qemu_" + copy_count
+                compactData(compact_key, old_res)
                 old_res = {}
     else:
         full_list[key] = res
-
-    if compat_data:
-        if '_clh_' in base_name:
-            getCaseValue(clh_all_data, base_name + "_" + str(copies), res)
-        elif '_qemu_' in base_name:
-            getCaseValue(qemu_all_data, base_name + "_" + str(copies), res)
-        else:
-            getCaseValue(host_all_data, base_name, res)
+        compactData(compact_key, res)
 
 
 dir_name = sys.argv[1]
@@ -159,7 +176,7 @@ def get_array(list_data):
     return arrays
 
 
-def save_cases_result():
+def save_cases_result(spath):
     cases_result = {}
     host_array = get_array(host_all_data)
     qemu_array = get_array(qemu_all_data)
@@ -176,7 +193,7 @@ def save_cases_result():
     cases_df = cases_df[:10]
     cases_df['sum'] = cases_df.sum(axis=1)
     cases_df['average'] = cases_df.mean(axis=1)
-    cases_df.to_csv('full_cases_data.csv', encoding='utf-8')
+    cases_df.to_csv(spath + '_compact.csv', encoding='utf-8')
 
 
 clh_perf = None
@@ -229,12 +246,23 @@ def file_parse(parent_dir,file_array):
                     parse_spec2017_csv(parent_dir, f)
 
 
+def resortArray(array):
+    file_array = []
+    keys = ['host_', 'qemu_', 'clh_']
+    for key in keys:
+        for file in array:
+            if key in file:
+                file_array.append(file)
+    return file_array
+
+
 def parse_unit(dir_name):                                                       # Parse a log directory
     files.clear()
     parent_dir = os.path.basename(dir_name)
     dirAll(dir_name)
 
     for case in spec2017_cases:
+        print("parsing case " + case + " for " + dir_name[-6:])
         file_arrary = []
         count = 0
         for f in files:
@@ -245,7 +273,8 @@ def parse_unit(dir_name):                                                       
                 count += 1
 
         if len(file_arrary) != 0:
-            file_parse(parent_dir, file_arrary)
+            sortedFiles = resortArray(file_arrary)
+            file_parse(parent_dir, sortedFiles)
             collect_perf(case[0:3]+"_" + parent_dir[-2:])
 
 
@@ -261,10 +290,10 @@ for temp in os.listdir(dir_name):
 print("Complete")
 
 full_df = pd.DataFrame(full_list)
-# full_df['mean'] = full_df.mean(axis=1)
-full_df.round(2).to_csv(os.path.join(dir_name, 'full_data.csv'), encoding='utf-8')
+spath = os.path.join(dir_name, dir_name[-15:])
+full_df.round(2).to_csv(spath + '.csv', encoding='utf-8')
 
 if compat_data:
-    save_cases_result()
+    save_cases_result(spath)
 
 print(full_df)
