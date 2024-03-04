@@ -64,6 +64,7 @@ one_spec2017_test()
     SAVE_DIR=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_"$addr
     python ../cpu_affinity.py -s /tmp/qmp-test$addr $pcpu
 
+    ssh_command $port "sudo echo never > /sys/kernel/mm/transparent_hugepage/enabled" 
     if [ "$ACTION" == "copies_intrate" ];then
         scp_push full_test.sh "/home/cloud/"
         ssh_command "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"
