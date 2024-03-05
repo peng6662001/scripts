@@ -112,7 +112,7 @@ def cal_diff(line_host, line_vm):
 def cal_data(full_data):
     cycles_sum = 0.0
     cycles_H_sum = 0.0
-    instructions_sum = 0.0
+    instructions_sum = 1.0
     stall_slot_backend_sum = 0.0
     op_spec_sum = 0.0
     op_retired_sum = 0.0
@@ -225,6 +225,10 @@ def cal_data(full_data):
     return line
 
 
+def getDiff(host,vm):
+    return cal_diff(host, vm)
+
+
 def parse_dir(parentDir,dir):
     res_host = None
     res_qemu = None
@@ -232,17 +236,17 @@ def parse_dir(parentDir,dir):
     if os.path.exists(os.path.join(dir, 'host.csv')):
         data_host = read_csv(os.path.join(dir, 'host.csv'))
         res_host = cal_data(data_host)
-        full_list['host_' + parentDir] = res_host
+        return res_host
 
     if os.path.exists(os.path.join(dir, 'qemu.csv')):
         data_qemu = read_csv(os.path.join(dir, 'qemu.csv'))
         res_qemu = cal_data(data_qemu)
-        full_list['qemu_' + parentDir] = res_qemu
+        return res_qemu
 
     if os.path.exists(os.path.join(dir, 'clh.csv')):
         data_clh = read_csv(os.path.join(dir, 'clh.csv'))
         res_clh = cal_data(data_clh)
-        full_list['clh_' + parentDir] = res_clh
+        return res_clh
 
     if res_host is not None and res_qemu is not None:
         host_qemu_diff = cal_diff(res_host, res_qemu)
