@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 #2023.01.10 version 1.0
 

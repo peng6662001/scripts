@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 DISK0_CFG="-drive if=none,file=/home/dom/images/jammy-server-cloudimg-arm64-custom-20220329-0.qcow2,format=qcow2,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0"
 DISK1_CFG="-drive if=none,file=../workloads/cloudinit/cloudinit_2.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1"
 DISK2_CFG="-drive if=none,file=../workloads/spec2017_disk.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2"

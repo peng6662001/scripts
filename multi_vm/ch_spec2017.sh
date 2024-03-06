@@ -1,4 +1,4 @@
-#!/bin/bash -x 
+#!/bin/bash 
 PARAM_NUM=$#
 
 source ../command.sh $@
@@ -29,7 +29,7 @@ one_spec2017_test()
 
     addr=`get_string $1`
     SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_"$addr
-    ssh_command_ip 192.168.$1.2 "sudo echo never > /sys/kernel/mm/transparent_hugepage/enabled" 
+    ssh_command_ip 192.168.$1.2 "sudo echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled" 
     if [ $1 -eq 18 ];then
 	perf_stat
     fi

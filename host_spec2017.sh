@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 PARAM_NUM=$#
 
 source command.sh $@

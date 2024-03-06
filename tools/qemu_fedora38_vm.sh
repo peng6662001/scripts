@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 
 qemu-system-aarch64 -nographic -machine virt,gic-version=max -enable-kvm \

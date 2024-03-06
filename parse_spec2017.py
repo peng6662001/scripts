@@ -13,12 +13,10 @@ compat_data = True
 spec2017_cases = ['500.perlbench_r', '502.gcc_r', '505.mcf_r', '520.omnetpp_r', '523.xalancbmk_r',
                   '525.x264_r', '531.deepsjeng_r', '541.leela_r', '548.exchange2_r', '557.xz_r']
 
-#test_data = {'one_6.6.0-rc6_1': {'500.perlbench_r': '4.668362', '502.gcc_r': '5.099748', '505.mcf_r': '9.127965', '520.omnetpp_r': '4.220373', '523.xalancbmk_r': '6.960487', '525.x264_r': '8.768577', '531.deepsjeng_r': '4.160553', '541.leela_r': '4.655915', '548.exchange2_r': '12.588069', '557.xz_r': '2.939434', 'Seconds': '', 'SPECrate2017_int_base': '', 'copies': ''}, 'one_6.6.0-rc6_2': {'500.perlbench_r': '9.032392', '502.gcc_r': '8.451308', '505.mcf_r': '13.654452', '520.omnetpp_r': '7.31921', '523.xalancbmk_r': '13.821534', '525.x264_r': '17.192006', '531.deepsjeng_r': '8.230088', '541.leela_r': '9.297256', '548.exchange2_r': '25.155246', '557.xz_r': '5.388034', 'Seconds': '', 'SPECrate2017_int_base': '', 'copies': ''}, 'one_6.6.0-rc6_4': {'500.perlbench_r': '17.86614', '502.gcc_r': '16.097644', '505.mcf_r': '26.78334', '520.omnetpp_r': '11.8162', '523.xalancbmk_r': '27.510784', '525.x264_r': '34.2496', '531.deepsjeng_r': '16.368368', '541.leela_r': '18.587368', '548.exchange2_r': '50.335388', '557.xz_r': '9.903152', 'Seconds': '', 'SPECrate2017_int_base': '', 'copies': ''}, 'one_6.6.0-rc6_8': {'500.perlbench_r': '32.883784', '502.gcc_r': '29.959568', '505.mcf_r': '53.131752', '520.omnetpp_r': '20.381888', '523.xalancbmk_r': '54.582488', '525.x264_r': '68.464008', '531.deepsjeng_r': '32.560608', '541.leela_r': '37.135728', '548.exchange2_r': '100.6518', '557.xz_r': '18.090224', 'Seconds': '', 'SPECrate2017_int_base': '', 'copies': ''}, 'one_6.6.0-rc6_16': {'500.perlbench_r': '63.858272', '502.gcc_r': '55.935792', '505.mcf_r': '105.630048', '520.omnetpp_r': '37.332656', '523.xalancbmk_r': '108.147888', '525.x264_r': '136.648432', '531.deepsjeng_r': '62.24584', '541.leela_r': '74.145552', '548.exchange2_r': '201.0256', '557.xz_r': '33.692912', 'Seconds': '', 'SPECrate2017_int_base': '', 'copies': ''}, 'one_6.6.0-rc6_32': {'500.perlbench_r': '120.763136', '502.gcc_r': '104.474752', '505.mcf_r': '208.070592', '520.omnetpp_r': '70.615776', '523.xalancbmk_r': '212.46624', '525.x264_r': '272.752064', '531.deepsjeng_r': '128.0808', '541.leela_r': '148.011072', '548.exchange2_r': '402.435392', '557.xz_r': '63.209376', 'Seconds': '', 'SPECrate2017_int_base': '', 'copies': ''}}
-
 
 def get_value(df, column ,name):
     if len(df[df['A'].str.contains(name)]) == 0:
-        return ''
+        return 0
     value = df[df['A'].str.contains(name)][column].iloc[0]
     return round(float(value),2)
 
