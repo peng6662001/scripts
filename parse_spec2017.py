@@ -16,7 +16,7 @@ spec2017_cases = ['500.perlbench_r', '502.gcc_r', '505.mcf_r', '520.omnetpp_r', 
 
 def get_value(df, column ,name):
     if len(df[df['A'].str.contains(name)]) == 0:
-        return 0
+        return ""
     value = df[df['A'].str.contains(name)][column].iloc[0]
     return round(float(value),2)
 
@@ -72,6 +72,8 @@ def sum_res(res):
     else:
         for case in spec2017_cases:
             if res[case] != "":
+                if old_res[case] == "":
+                    old_res[case] = 0
                 old_res[case] = old_res[case] + res[case]
         old_res['Seconds'] = old_res['Seconds'] + res['Seconds']
         old_res['SPECrate2017_int_base'] = old_res['SPECrate2017_int_base'] + res['SPECrate2017_int_base']
@@ -124,8 +126,6 @@ def parse_spec2017_csv(pardir, f):
             key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("_")[0]
             nCopy = int(copy_count)
             nIdx = int(base_name[-2:]) - 1
-            if 'clh' in pardir_name:
-                nIdx -= 16
             sum_res(res)                # Add scores of multi
 
             if nCopy == nIdx:
@@ -290,6 +290,8 @@ print("Complete")
 full_df = pd.DataFrame(full_list)
 
 if dir_name.endswith("/"):
+    dir_name = dir_name[:-1]
+if dir_name.endswith("\\"):
     dir_name = dir_name[:-1]
 spath = os.path.join(dir_name, os.path.basename(dir_name)[4:])
 print("spath = " + spath)
