@@ -98,7 +98,7 @@ def parse_spec2017_csv(pardir, f):
     df = datas.loc[:, 'A':'L'].iloc[0:100].fillna(' ')
     res = {}
     copies, seconds = read_interation(df, res)
-    res['Seconds'] = seconds
+    res['Seconds'] = round(float(seconds),2)
     res['SPECrate2017_int_base'] = get_value(df, 'B', 'SPECrate2017_int_base')
     res['copies'] = copies
 
@@ -189,8 +189,8 @@ def save_cases_result(spath):
 
     cases_df = pd.DataFrame(cases_result)
     cases_df = cases_df[:10]
-    cases_df['sum'] = cases_df.sum(axis=1)
-    cases_df['average'] = cases_df.mean(axis=1)
+    #cases_df['sum'] = cases_df.sum(axis=1)
+    #cases_df['average'] = cases_df.mean(axis=1)
     cases_df.to_csv(spath + '_compact.csv', encoding='utf-8')
 
 

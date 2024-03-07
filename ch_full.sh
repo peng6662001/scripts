@@ -79,7 +79,7 @@ cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_rebuild.raw $WORKLOADS_DIR/Fe
 qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $WORKLOADS_DIR/spec2017_disk_clh.qcow2
 
 $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
-        --cpus boot=40,affinity=[0@[81],1@[82],2@[83],3@[84],4@[85],5@[86],6@[87],7@[88],8@[89],9@[90],10@[91],11@[92],12@[93],13@[94],14@[95],15@[96],16@[97],17@[98],18@[99],19@[100],20@[101],21@[102],22@[103],23@[104],24@[105],25@[106],26@[107],27@[108],28@[109],29@[110],30@[111],31@[112],32@[113],33@[114],34@[115],35@[116],36@[117],37@[118],38@[119],39@[120]] \
+        --cpus boot=40,affinity=[0@[2],1@[3],2@[4],3@[5],4@[6],5@[7],6@[8],7@[9],8@[10],9@[11],10@[12],11@[13],12@[14],13@[15],14@[16],15@[17],16@[18],17@[19],18@[20],19@[21],20@[22],21@[23],22@[24],23@[25],24@[26],25@[27],26@[28],27@[29],28@[30],29@[31],30@[32],31@[33],32@[34],33@[35],34@[36],35@[37],36@[38],37@[39],38@[40],39@[41]] \
         --memory size=128G,hugepages=on,hugepage_size=1G,prefault=on \
         --kernel $WORKLOADS_DIR/CLOUDHV_EFI.fd \
         --disk path=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_clh.raw \
