@@ -73,7 +73,9 @@ one_spec2017_test()
     else
         ssh_command $port "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies 1 --$BUILD_OPT --action run $ACTION"
     fi
-    killall perf
+    if [ $1 -eq 2 ];then
+        killall perf
+    fi
     scp_pull $port "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR/
     ssh_command $port "sudo shutdown -h now"
 }

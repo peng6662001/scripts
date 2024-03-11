@@ -30,12 +30,14 @@ one_spec2017_test()
     addr=`get_string $1`
     SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_"$addr
     ssh_command_ip 192.168.$1.2 "sudo echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled" 
-    if [ $1 -eq 18 ];then
+    if [ $1 -eq 2 ];then
 	perf_stat
     fi
     ssh_command_ip 192.168.$1.2 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies 1 --$BUILD_OPT --action run $ACTION"
     
-    killall perf
+    if [ $1 -eq 2 ];then
+	killall perf
+    fi
 
     scp_pull_ip 192.168.$1.2 "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR/
     ssh_command_ip 192.168.$1.2 "sudo shutdown -h now" 
