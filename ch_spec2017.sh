@@ -23,7 +23,7 @@ fi
 SAVE_DIR=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/`ssh_command_ch 'uname -r'`"_single"
 
 ssh_command_ch "sudo rm -rf /home/amptest/ampere_spec2017/spec2017/result"
-
+ssh_command_ch "sudo echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled" 
 if [ "$ACTION" == "copies_intrate" ];then
     scp_push_ch full_test.sh "/home/cloud/"
     ssh_command_ch "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"

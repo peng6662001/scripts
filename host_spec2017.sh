@@ -31,18 +31,16 @@ host_test()
     if [ $cpu_name == "altra" ];then
         perf stat -C 2 -e cycles,instructions,stall_backend,stall_frontend,mem_access,l2d_tlb,l2d_tlb_refill,dtlb_walk,inst_spec,inst_retired -I 1000 -x , -o $csv_name &
     fi
-
+    echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled
     rm -rf "/home/amptest/ampere_spec2017/spec2017/result"
     if [ "$ACTION" == "copies_intrate" ];then
 	sudo chmod a+x full_test.sh
         ./full_test.sh
     else
-        ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION -v 35
-        #./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION
+        ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION
     fi
-    #if [ $GROUP -ne 1 ];then
-	#killall perf
-    #fi
+
+    killall perf
     sudo mv /home/amptest/ampere_spec2017/spec2017/result $SAVE_DIR
     popd
 }
