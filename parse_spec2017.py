@@ -62,11 +62,11 @@ def getCaseValue(list_data, title, cases_data):
     list_data[title]['copies'] = ''
 
 
-old_res = {}
+old_clh_res = {}
+old_qemu_res = {}
 
 
-def sum_res(res):
-    global old_res
+def sum_res(old_res, res):
     if len(old_res) == 0:
         old_res = res
     else:
@@ -79,6 +79,7 @@ def sum_res(res):
                 print("sum_res E:old_res=" + str(old_res[case]) + ",res = " + str(res[case]))
         old_res['Seconds'] = old_res['Seconds'] + res['Seconds']
         old_res['SPECrate2017_int_base'] = old_res['SPECrate2017_int_base'] + res['SPECrate2017_int_base']
+    return old_res
 
 
 def compactData(key, res):
@@ -95,7 +96,9 @@ def compactData(key, res):
 
 
 def parse_spec2017_csv(pardir, f):
-    global old_res
+    global old_clh_res
+    global old_qemu_res
+
     with open(f, encoding='UTF-8') as temp_f:
         # get No of columns in each line
         col_count = [len(l.split(",")) for l in temp_f.readlines()]
@@ -132,21 +135,25 @@ def parse_spec2017_csv(pardir, f):
             key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("_")[0]
             nCopy = int(copy_count)
             nIdx = int(base_name[-2:]) - 1
-            sum_res(res)                # Add scores of multi
-            if "qemu" in pardir_name and copy_count == "32":
-                print("count = " + copy_count + ",idx = " + base_name + ",\n res = " + str(res) + ",\n old_res = " + str(old_res))
+            if "clh" in pardir_name:
+                old_clh_res = sum_res(old_clh_res, res)                # Add scores of multi
+            if "qemu" in pardir_name:
+                old_qemu_res = sum_res(old_qemu_res, res)                # Add scores of multi
 
             if nCopy == nIdx:
-                full_list[key] = old_res
-                if nCopy == 32:
-                    print("set full_list,key = " + key + ",old_res = " + str(old_res))
+                if "clh" in pardir_name:
+                    full_list[key] = old_clh_res
+                if "qemu" in pardir_name:
+                    full_list[key] = old_qemu_res
 
                 if "clh" in pardir_name:
                     compact_key = "clh_" + copy_count
+                    compactData(compact_key, old_clh_res)
+                    old_clh_res = {}
                 elif "qemu" in pardir_name:
                     compact_key = "qemu_" + copy_count
-                compactData(compact_key, old_res)
-                old_res = {}
+                    compactData(compact_key, old_qemu_res)
+                    old_qemu_res = {}
     else:
         full_list[key] = res
         compactData(compact_key, res)
