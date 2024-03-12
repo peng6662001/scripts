@@ -107,7 +107,7 @@ DISK2_CFG="-drive if=none,file=$WORKLOADS_DIR/spec2017_disk_qemu.qcow2,format=qc
 rm -rf /dev/hugepages1G/libvirt/qemu/1-test
 #./setup_1g_hugepage.sh
 
-cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_rebuild.raw $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_qemu.raw
+cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_qemu.raw
 qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $WORKLOADS_DIR/spec2017_disk_qemu.qcow2
 
 qemu-system-aarch64 --version

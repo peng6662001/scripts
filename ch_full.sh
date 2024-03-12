@@ -75,7 +75,7 @@ ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.249.2"
 rm -rf /dev/hugepages1G/libvirt/qemu/1-test
 ./setup_1g_hugepage.sh
 
-cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_rebuild.raw $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_clh.raw
+cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_clh.raw
 qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $WORKLOADS_DIR/spec2017_disk_clh.qcow2
 
 $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \

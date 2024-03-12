@@ -5,7 +5,7 @@ source command.sh
 mkcloudinit
 test_copies()
 {
-    COPYS=1
+    COPYS=32
     
     while ((COPYS<=32))
     do
@@ -19,8 +19,8 @@ test_copies()
     done
 }
 
-#array_spec=(500.perlbench_r 502.gcc_r 505.mcf_r 520.omnetpp_r 523.xalancbmk_r 525.x264_r 531.deepsjeng_r 541.leela_r 548.exchange2_r 557.xz_r)
-array_spec=(505.mcf_r)
+array_spec=(500.perlbench_r 502.gcc_r 505.mcf_r 520.omnetpp_r 523.xalancbmk_r 525.x264_r 531.deepsjeng_r 541.leela_r 548.exchange2_r 557.xz_r)
+#array_spec=(505.mcf_r)
 
 for name in "${array_spec[@]}"
 do

@@ -31,7 +31,7 @@ host_test()
     if [ $cpu_name == "altra" ];then
         perf stat -C 2 -e cycles,instructions,stall_backend,stall_frontend,mem_access,l2d_tlb,l2d_tlb_refill,dtlb_walk,inst_spec,inst_retired -I 1000 -x , -o $csv_name &
     fi
-    echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled
+    sudo echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled
     rm -rf "/home/amptest/ampere_spec2017/spec2017/result"
     if [ "$ACTION" == "copies_intrate" ];then
 	sudo chmod a+x full_test.sh

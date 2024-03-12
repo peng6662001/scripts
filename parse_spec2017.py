@@ -80,6 +80,8 @@ def sum_res(res):
 
 
 def compactData(key, res):
+    if key == "qemu_32":
+        print(key)
     if compat_data:
         if 'clh_' in key:
             getCaseValue(clh_all_data, key, res)

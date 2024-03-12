@@ -6,6 +6,8 @@ if [ $# -lt 3 ];then
     showHelp all 
 fi
 
+sudo echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled
+
 ./host_spec2017.sh $@ 
 ./qemu_spec2017.sh $@
 ./ch_spec2017.sh $@
