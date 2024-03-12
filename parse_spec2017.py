@@ -75,9 +75,7 @@ def sum_res(old_res, res):
             if res[case] != "":
                 if old_res[case] == "":
                     old_res[case] = 0
-                print("sum_res S:old_res=" + str(old_res[case]) + ",res = " + str(res[case]))
-                old_res[case] = old_res[case] + res[case]
-                print("sum_res E:old_res=" + str(old_res[case]) + ",res = " + str(res[case]))
+                old_res[case] = round(old_res[case] + res[case],2)
         old_res['Seconds'] = old_res['Seconds'] + res['Seconds']
         old_res['SPECrate2017_int_base'] = old_res['SPECrate2017_int_base'] + res['SPECrate2017_int_base']
     return old_res
