@@ -74,7 +74,9 @@ def sum_res(res):
             if res[case] != "":
                 if old_res[case] == "":
                     old_res[case] = 0
+                print("sum_res S:old_res=" + str(old_res[case]) + ",res = " + str(res[case]))
                 old_res[case] = old_res[case] + res[case]
+                print("sum_res E:old_res=" + str(old_res[case]) + ",res = " + str(res[case]))
         old_res['Seconds'] = old_res['Seconds'] + res['Seconds']
         old_res['SPECrate2017_int_base'] = old_res['SPECrate2017_int_base'] + res['SPECrate2017_int_base']
 
@@ -86,6 +88,7 @@ def compactData(key, res):
         if 'clh_' in key:
             getCaseValue(clh_all_data, key, res)
         elif 'qemu_' in key:
+            print("qemu compactData:key = " + key + ",res = " + str(res))
             getCaseValue(qemu_all_data, key, res)
         else:
             getCaseValue(host_all_data, key, res)
@@ -96,6 +99,7 @@ def parse_spec2017_csv(pardir, f):
     with open(f, encoding='UTF-8') as temp_f:
         # get No of columns in each line
         col_count = [len(l.split(",")) for l in temp_f.readlines()]
+    print("Path file:" + str(f))
     column_names = [chr(i + 65) for i in range(max(col_count))]
 
     datas = pd.read_csv(f, header=None, skip_blank_lines=True, names=column_names)
@@ -129,9 +133,13 @@ def parse_spec2017_csv(pardir, f):
             nCopy = int(copy_count)
             nIdx = int(base_name[-2:]) - 1
             sum_res(res)                # Add scores of multi
+            if "qemu" in pardir_name and copy_count == "32":
+                print("count = " + copy_count + ",idx = " + base_name + ",\n res = " + str(res) + ",\n old_res = " + str(old_res))
 
             if nCopy == nIdx:
                 full_list[key] = old_res
+                if nCopy == 32:
+                    print("set full_list,key = " + key + ",old_res = " + str(old_res))
 
                 if "clh" in pardir_name:
                     compact_key = "clh_" + copy_count
@@ -262,7 +270,7 @@ def parse_unit(dir_name):                                                       
     dirAll(dir_name)
 
     for case in spec2017_cases:
-        print("parsing case " + case + " for " + dir_name[-6:])
+        print("Path case " + case + " for " + dir_name[-6:])
         file_arrary = []
         count = 0
         for f in files:
@@ -280,6 +288,7 @@ def parse_unit(dir_name):                                                       
 
 for temp in os.listdir(dir_name):
     file_path = os.path.join(dir_name, temp)
+    print("Path top:" + file_path)
     if os.path.isdir(file_path):
         parse_unit(file_path)
     # else:
