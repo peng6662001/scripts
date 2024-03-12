@@ -64,7 +64,8 @@ def getCaseValue(list_data, title, cases_data):
 
 old_clh_res = {}
 old_qemu_res = {}
-
+clh_childs = 0
+qemu_childs = 0
 
 def sum_res(old_res, res):
     if len(old_res) == 0:
@@ -98,6 +99,8 @@ def compactData(key, res):
 def parse_spec2017_csv(pardir, f):
     global old_clh_res
     global old_qemu_res
+    global clh_childs
+    global qemu_childs
 
     with open(f, encoding='UTF-8') as temp_f:
         # get No of columns in each line
@@ -134,26 +137,27 @@ def parse_spec2017_csv(pardir, f):
         else:
             key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("_")[0]
             nCopy = int(copy_count)
-            nIdx = int(base_name[-2:]) - 1
             if "clh" in pardir_name:
                 old_clh_res = sum_res(old_clh_res, res)                # Add scores of multi
-            if "qemu" in pardir_name:
-                old_qemu_res = sum_res(old_qemu_res, res)                # Add scores of multi
-
-            if nCopy == nIdx:
-                if "clh" in pardir_name:
-                    full_list[key] = old_clh_res
-                if "qemu" in pardir_name:
-                    full_list[key] = old_qemu_res
-
-                if "clh" in pardir_name:
+                clh_childs += 1
+                if nCopy == clh_childs:
+                    clh_childs = 0
                     compact_key = "clh_" + copy_count
                     compactData(compact_key, old_clh_res)
                     old_clh_res = {}
-                elif "qemu" in pardir_name:
+                else:
+                    full_list[key] = old_clh_res
+
+            if "qemu" in pardir_name:
+                old_qemu_res = sum_res(old_qemu_res, res)                # Add scores of multi
+                qemu_childs += 1
+                if nCopy == qemu_childs:
+                    qemu_childs = 0
                     compact_key = "qemu_" + copy_count
                     compactData(compact_key, old_qemu_res)
                     old_qemu_res = {}
+                else:
+                    full_list[key] = old_qemu_res
     else:
         full_list[key] = res
         compactData(compact_key, res)
