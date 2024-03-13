@@ -40,6 +40,7 @@ one_spec2017_test()
     fi
 
     scp_pull_ip 192.168.$1.2 "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR/
+    ssh_command_ip 192.168.$1.2 "sudo cat /sys/kernel/mm/transparent_hugepage/enabled" 
     ssh_command_ip 192.168.$1.2 "sudo shutdown -h now" 
 }
 

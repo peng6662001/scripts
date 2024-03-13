@@ -77,6 +77,7 @@ one_spec2017_test()
         killall perf
     fi
     scp_pull $port "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR/
+    ssh_command $port "sudo cat /sys/kernel/mm/transparent_hugepage/enabled" 
     ssh_command $port "sudo shutdown -h now"
 }
 

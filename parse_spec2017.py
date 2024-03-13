@@ -147,6 +147,7 @@ def parse_spec2017_csv(pardir, f):
                     full_list[key] = old_clh_res
 
             if "qemu" in pardir_name:
+                print("'SPECrate2017_int_base' = " + str(res['SPECrate2017_int_base']))
                 old_qemu_res = sum_res(old_qemu_res, res)                # Add scores of multi
                 qemu_childs += 1
                 if nCopy == qemu_childs:

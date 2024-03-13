@@ -21,4 +21,4 @@ do
     let res=$res+`pgrep qemu_spec|wc -l`
     sleep 5
 done
-
+sudo cat /sys/kernel/mm/transparent_hugepage/enabled
