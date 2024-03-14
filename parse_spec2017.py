@@ -51,23 +51,29 @@ def read_interation(df, res):
 
 
 def getCaseValue(list_data, title, cases_data):
+    global copy_count
     for case in spec2017_cases:
         if cases_data[case] != '':
             if title not in list_data:
                 list_data[title] = cases_data.copy()
             list_data[title][case] = cases_data[case]
+            # case_key = case[:3] + "_" + copy_count
+            # if case_key in cases_data:
+            #     list_data[title][case_key] = cases_data[case_key]
             break
-    list_data[title]['Seconds'] = ''
-    list_data[title]['SPECrate2017_int_base'] = ''
-    list_data[title]['copies'] = ''
+    # list_data[title]['Seconds'] = ''
+    # list_data[title]['SPECrate2017_int_base'] = ''
+    # list_data[title]['copies'] = ''
 
 
 old_clh_res = {}
 old_qemu_res = {}
 clh_childs = 0
 qemu_childs = 0
+value_detail = {}
 
-def sum_res(old_res, res):
+
+def sum_res(old_res, res, copy_count, index):
     if len(old_res) == 0:
         old_res = res
     else:
@@ -75,7 +81,19 @@ def sum_res(old_res, res):
             if res[case] != "":
                 if old_res[case] == "":
                     old_res[case] = 0
-                old_res[case] = round(old_res[case] + res[case],2)
+
+                separate = ",\t\t"
+                # if case_key in old_res:
+                #     if old_res[case_key].endswith("\n"):
+                #         old_res[case_key] = old_res[case_key] + str(res[case])
+                #     else:
+                #         old_res[case_key] = old_res[case_key] + separate + str(res[case])
+                #     if (index + 1) % 4 == 0:
+                #         old_res[case_key] = old_res[case_key] + "\n"
+                # else:
+                #     old_res[case_key] = str(old_res[case]) + separate + str(res[case])
+                old_res[case] = round(old_res[case] + res[case], 2)
+
         old_res['Seconds'] = old_res['Seconds'] + res['Seconds']
         old_res['SPECrate2017_int_base'] = old_res['SPECrate2017_int_base'] + res['SPECrate2017_int_base']
     return old_res
@@ -94,11 +112,24 @@ def compactData(key, res):
             getCaseValue(host_all_data, key, res)
 
 
+def record_details(copies, index, stype, res):
+    for case in spec2017_cases:
+        if res[case] != "":
+            group = copies + "_" + str(index)
+            if group not in value_detail:
+                value_detail[group] = {}
+            key = case[:3] + "_" + stype
+            if key not in value_detail[group]:
+                value_detail[group][key] = res[case]
+
+
+copy_count = ""
 def parse_spec2017_csv(pardir, f):
     global old_clh_res
     global old_qemu_res
     global clh_childs
     global qemu_childs
+    global copy_count
 
     with open(f, encoding='UTF-8') as temp_f:
         # get No of columns in each line
@@ -129,14 +160,17 @@ def parse_spec2017_csv(pardir, f):
             full_list[key] = res
             if "clh" in pardir_name:
                 compact_key = "clh_" + copy_count
+                record_details(copy_count, 0, "clh", res)
             elif "qemu" in pardir_name:
                 compact_key = "qemu_" + copy_count
+                record_details(copy_count, 0, "qemu", res)
             compactData(compact_key, res)
         else:
             key = copy_count + "_" + pardir_name.split(".")[0] + "_" + base_name.split("_")[0]
             nCopy = int(copy_count)
             if "clh" in pardir_name:
-                old_clh_res = sum_res(old_clh_res, res)                # Add scores of multi
+                record_details(copy_count, clh_childs, "clh", res)
+                old_clh_res = sum_res(old_clh_res, res, copy_count, clh_childs)                # Add scores of multi
                 clh_childs += 1
                 if nCopy == clh_childs:
                     clh_childs = 0
@@ -148,7 +182,8 @@ def parse_spec2017_csv(pardir, f):
 
             if "qemu" in pardir_name:
                 print("'SPECrate2017_int_base' = " + str(res['SPECrate2017_int_base']))
-                old_qemu_res = sum_res(old_qemu_res, res)                # Add scores of multi
+                record_details(copy_count, qemu_childs, "qemu", res)
+                old_qemu_res = sum_res(old_qemu_res, res, copy_count, qemu_childs)                # Add scores of multi
                 qemu_childs += 1
                 if nCopy == qemu_childs:
                     qemu_childs = 0
@@ -158,6 +193,7 @@ def parse_spec2017_csv(pardir, f):
                 else:
                     full_list[key] = old_qemu_res
     else:
+        record_details(copy_count, 0, "host", res)
         full_list[key] = res
         compactData(compact_key, res)
 
@@ -208,7 +244,7 @@ def save_cases_result(spath):
             cases_result[clh_array[i * 2]] = clh_array[i * 2 + 1]
 
     cases_df = pd.DataFrame(cases_result)
-    cases_df = cases_df[:10]
+    #cases_df = cases_df[:10]
     #cases_df['sum'] = cases_df.sum(axis=1)
     #cases_df['average'] = cases_df.mean(axis=1)
     cases_df.to_csv(spath + '_compact.csv', encoding='utf-8')
@@ -317,6 +353,9 @@ if dir_name.endswith("\\"):
 spath = os.path.join(dir_name, os.path.basename(dir_name)[4:])
 print("spath = " + spath)
 full_df.round(2).to_csv(spath + '.csv', encoding='utf-8')
+
+detail_df = pd.DataFrame(value_detail)
+detail_df.to_csv(spath + "_detail.csv", encoding='utf-8')
 
 if compat_data:
     save_cases_result(spath)
