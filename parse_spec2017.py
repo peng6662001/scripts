@@ -236,8 +236,17 @@ def save_cases_result(spath):
     qemu_array = get_array(qemu_all_data)
     clh_array = get_array(clh_all_data)
 
-    for i in range(len(host_all_data)):
-        cases_result[host_array[i * 2]] = host_array[i * 2 + 1]
+    n_size = len(host_all_data)
+    if n_size == 0:
+        n_size = len(qemu_all_data)
+        if n_size == 0:
+            n_size = len(clh_all_data)
+            if n_size == 0:
+                return
+
+    for i in range(n_size):
+        if len(host_array) > 0:
+            cases_result[host_array[i * 2]] = host_array[i * 2 + 1]
         if len(qemu_array) > 0:
             cases_result[qemu_array[i * 2]] = qemu_array[i * 2 + 1]
         if len(clh_array) > 0:
