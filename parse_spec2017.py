@@ -94,8 +94,8 @@ def sum_res(old_res, res, copy_count, index):
                 #     old_res[case_key] = str(old_res[case]) + separate + str(res[case])
                 old_res[case] = round(old_res[case] + res[case], 2)
 
-        old_res['Seconds'] = old_res['Seconds'] + res['Seconds']
-        old_res['SPECrate2017_int_base'] = old_res['SPECrate2017_int_base'] + res['SPECrate2017_int_base']
+        #old_res['Seconds'] = old_res['Seconds'] + res['Seconds']
+        #old_res['SPECrate2017_int_base'] = old_res['SPECrate2017_int_base'] + res['SPECrate2017_int_base']
     return old_res
 
 
@@ -247,7 +247,7 @@ def save_cases_result(spath):
     #cases_df = cases_df[:10]
     #cases_df['sum'] = cases_df.sum(axis=1)
     #cases_df['average'] = cases_df.mean(axis=1)
-    cases_df.to_csv(spath + '_compact.csv', encoding='utf-8')
+    cases_df[:10].to_csv(spath + '_compact.csv', encoding='utf-8')
 
 
 clh_perf = None
@@ -350,7 +350,12 @@ if dir_name.endswith("/"):
     dir_name = dir_name[:-1]
 if dir_name.endswith("\\"):
     dir_name = dir_name[:-1]
-spath = os.path.join(dir_name, os.path.basename(dir_name)[4:])
+
+base_name = os.path.basename(dir_name)
+if base_name.startswith("log_202"):
+    spath = os.path.join(dir_name, base_name[4:])
+else:
+    spath = os.path.join(dir_name, base_name)
 print("spath = " + spath)
 full_df.round(2).to_csv(spath + '.csv', encoding='utf-8')
 
