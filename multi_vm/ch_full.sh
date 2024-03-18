@@ -92,7 +92,7 @@ do
 
     $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
         --cpus boot=1,affinity=[0@[$pcpu]] \
-        --memory size=4G,hugepages=on,hugepage_size=1G,prefault=on \
+        --memory size=4G \
         --kernel $WORKLOADS_DIR/CLOUDHV_EFI.fd \
         --disk path=$DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw \
         --disk path=$WORKLOADS_DIR/cloudinit/cloudinit_net_$i.img,iommu=on \
