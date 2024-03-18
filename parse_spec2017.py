@@ -176,9 +176,8 @@ def parse_spec2017_csv(pardir, f):
                     clh_childs = 0
                     compact_key = "clh_" + copy_count
                     compactData(compact_key, old_clh_res)
-                    old_clh_res = {}
-                else:
                     full_list[key] = old_clh_res
+                    old_clh_res = {}
 
             if "qemu" in pardir_name:
                 print("'SPECrate2017_int_base' = " + str(res['SPECrate2017_int_base']))
@@ -189,9 +188,9 @@ def parse_spec2017_csv(pardir, f):
                     qemu_childs = 0
                     compact_key = "qemu_" + copy_count
                     compactData(compact_key, old_qemu_res)
-                    old_qemu_res = {}
-                else:
                     full_list[key] = old_qemu_res
+                    old_qemu_res = {}
+
     else:
         record_details(copy_count, 0, "host", res)
         full_list[key] = res
@@ -307,6 +306,7 @@ def file_parse(parent_dir,file_array):
                     host_perf = parse_perf.parse_dir(".", os.path.dirname(path))
                 else:
                     parse_spec2017_csv(parent_dir, f)
+    print("Parsed all cases")
 
 
 def resortArray(array):
