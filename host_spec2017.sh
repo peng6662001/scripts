@@ -41,6 +41,7 @@ host_test()
     fi
 
     killall perf
+    record_info host
     sudo mv /home/amptest/ampere_spec2017/spec2017/result $SAVE_DIR
     popd
 }

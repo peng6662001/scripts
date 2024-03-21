@@ -64,6 +64,8 @@ scp_pull "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR
 if [ $GROUP -ne 1 ];then
     killall perf
 fi
+
+record_info qemu
 killall qemu-system-aarch64
 #python3 process_csv.py $vm_csv_name
 

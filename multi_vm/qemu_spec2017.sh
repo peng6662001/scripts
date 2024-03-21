@@ -69,9 +69,9 @@ one_spec2017_test()
     if [ $1 -eq 2 ];then
         killall perf
     fi
-    record_info qemu
     scp_pull $port "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR/
 
+    record_info qemu
     ssh_command $port "sudo shutdown -h now"
 }
 

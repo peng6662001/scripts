@@ -71,7 +71,7 @@ popd
 build_edk2
 rm -rf /tmp/vsock
 
-ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.249.2"
+ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.2.2"
 rm -rf /dev/hugepages1G/libvirt/qemu/1-test
 #./setup_1g_hugepage.sh
 
@@ -91,7 +91,7 @@ $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
         --disk path=$WORKLOADS_DIR/spec2017_disk_clh.qcow2 \
         --vsock cid=3,socket=/tmp/vsock \
 	--serial off --console off \
-        --net id=net123,tap=,mac=12:34:56:78:90:ab,ip=192.168.249.1,mask=255.255.255.0 & #& exit
+        --net id=net123,tap=,mac=12:34:56:78:90:02,ip=192.168.2.1,mask=255.255.255.0 & #& exit
 sed -i '/192.168.249.2/d' /root/.ssh/known_hosts
 res=1
 while [ $res -ne 0 ];
