@@ -53,20 +53,20 @@ ssh_command "sudo find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -max
 ssh_command "sudo echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled" 
 if [ "$ACTION" == "copies_intrate" ];then
     scp_push full_test.sh "/home/cloud/"
-    ssh_command "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"
-    ssh_command "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
-    ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
+    ssh_command 3335 "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"
+    ssh_command 3335 "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
+    ssh_command 3335 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
 else
-    ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION"
+    ssh_command 3335 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION"
 fi
 
-scp_pull "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR
+scp_pull 3335 "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR
 if [ $GROUP -ne 1 ];then
     killall perf
 fi
 
 record_info qemu
-killall qemu-system-aarch64
-#python3 process_csv.py $vm_csv_name
+ssh_command 3335 "sudo shutdown -h now"
+
 
 reset
