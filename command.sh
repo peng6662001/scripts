@@ -3,7 +3,7 @@ ADDR=127.0.0.1
 PORT=3333
 USER=cloud
 PASS=cloud123
-cpu_name="host"
+cpu_name="one"
 vm_count=32
 vm_start=2
 COPIES=32
@@ -73,6 +73,36 @@ if [ ! -e $LOG_DIR ];then
         mkdir -p $LOG_DIR
     fi
 fi
+
+SUMMARY=$LOG_DIR/summary.txt
+
+record_info()
+{
+    if [ $COPIES -ne 1 ];then
+	return
+    fi
+
+    RES=`grep $1 $SUMMARY`
+    if [ "$RES" != "" ];then
+	return
+    fi
+
+    echo -e "\n\n=======$1=======\n\n" >> $SUMMARY
+
+    if [ $1 == "host" ];then
+	RES="transparent_hugepage:"`sudo cat /sys/kernel/mm/transparent_hugepage/enabled`"\n\n"
+    elif [ $1 == "qemu" ];then
+	RES="transparent_hugepage:"`ssh_command 3335 'sudo cat /sys/kernel/mm/transparent_hugepage/enabled'`"\n\n"
+	RES=$RES"\n\n"`ps aux | grep "qemu.*3335-:22" -m 1`
+    elif [ $1 == "clh" ];then
+	RES="transparent_hugepage:"`ssh_command_ip 192.168.2.2 'sudo cat /sys/kernel/mm/transparent_hugepage/enabled'`"\n\n"
+	RES=$RES"\n\n"`ps aux | grep "cloud.*ip=192\.168\.2\.1"`
+    fi
+    echo -e $RES >> $SUMMARY
+
+    RES="\n"`grep "define label" /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64.cfg`"\n"
+    echo -e $RES >> $SUMMARY
+}
 
 get_string()
 {
@@ -322,6 +352,16 @@ prepare_disks()
     echo cp $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
     cp -f $WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64.raw $DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw
     qemu-img create -f qcow2 -b $WORKLOADS_DIR/spec2017_disk.qcow2 -F qcow2 $DISKS_DIR/spec2017_disk_$addr.qcow2
+}
+
+start_perf()
+{
+    if [ $cpu_name == "one" ];then
+        perf stat -C 2 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,STALL_BACKEND_TLB:G,STALL_BACKEND_CACHE:G,STALL_BACKEND_MEM:G,mem_access:G,l1d_tlb:G,l1d_tlb_refill:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,rd80d:G,stall_slot_backend:G,op_spec:G,op_retired:G,STALL_BACKEND_RESOURCE:G -I 1000 -x , -o $vm_csv_name &
+    fi
+    if [ $cpu_name == "altra" ];then
+        perf stat -C 2 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,mem_access:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,inst_spec:G,inst_retired:G -I 1000 -x , -o $vm_csv_name &
+    fi
 }
 
 if [ "$1" == "build_edk2" ];then

@@ -111,7 +111,7 @@ run_vm()
             -nographic \
             -machine virt,gic-version=max -enable-kvm\
             -bios /usr/share/edk2/aarch64/QEMU_EFI.silent.fd \
-            -cpu max -smp cpus=1 \
+            -cpu max -smp cpus=2 \
             -m 4G \
 	    -qmp unix:/tmp/qmp-test$addr,server,nowait \
             -drive if=none,file=$WORKLOADS_DIR/disks/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0 \

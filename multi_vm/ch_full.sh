@@ -88,10 +88,11 @@ do
     ssh-keygen -f "/root/.ssh/known_hosts" -R "192.168.$i.2"
 
     sed -i '/192.168.$i.2/d' /root/.ssh/known_hosts
-    let pcpu=$i		#63+2+16=81
+    let pcpu=$i*2		#63+2+16=81
+    let pcpu2=$pcpu+1
 
     $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
-        --cpus boot=1,affinity=[0@[$pcpu]] \
+        --cpus boot=2,affinity=[0@[$pcpu],1@[$pcpu2]] \
         --memory size=4G \
         --kernel $WORKLOADS_DIR/CLOUDHV_EFI.fd \
         --disk path=$DISKS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_$addr.raw \
