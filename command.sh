@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -x 
 ADDR=127.0.0.1
 PORT=3333
 USER=cloud
@@ -23,10 +23,6 @@ DISKS_DIR=$WORKLOADS_DIR/disks
 
 if [ ! -e $WORKLOADS_DIR ];then
   mkdir $WORKLOADS_DIR
-fi
-
-if [ ! -e $LOG_DIR ];then
-  mkdir $LOG_DIR
 fi
 
 if [ ! -e $DISKS_DIR ];then
@@ -73,7 +69,6 @@ if [ ! -e $LOG_DIR ];then
         mkdir -p $LOG_DIR
     fi
 fi
-
 SUMMARY=$LOG_DIR/summary.txt
 
 record_info()
@@ -87,21 +82,34 @@ record_info()
 	return
     fi
 
+    echo -e "log_dir:$LOG_DIR\n" >> $SUMMARY
+
     echo -e "\n\n=======$1=======\n\n" >> $SUMMARY
 
     if [ $1 == "host" ];then
 	RES="transparent_hugepage:"`sudo cat /sys/kernel/mm/transparent_hugepage/enabled`"\n\n"
+	RES=$RES"\n"`cat /proc/meminfo | grep HugePage`
+	RES=$RES"\n PAGESIZE = "`getconf PAGESIZE`
+	RES=$RES"\n"`grep "define label" /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64.cfg`"\n"
     elif [ $1 == "qemu" ];then
 	RES="transparent_hugepage:"`ssh_command 3335 'sudo cat /sys/kernel/mm/transparent_hugepage/enabled'`"\n\n"
 	RES=$RES"\n\n"`ps aux | grep "qemu.*3335-:22" -m 1`
+	RES=$RES"\n\n"`cat /proc/meminfo | grep HugePage`
+	RES=$RES"\n\nqemu memory:"`ssh_command 3335 'cat /proc/meminfo | grep HugePage'`
+	RES=$RES"\n\nqemu PAGESIZE = "`ssh_command 3335 'getconf PAGESIZE'`
+	RES=$RES"\n\n"`ssh_command 3335 'grep "define label" /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64.cfg'`"\n"
     elif [ $1 == "clh" ];then
 	RES="transparent_hugepage:"`ssh_command_ip 192.168.2.2 'sudo cat /sys/kernel/mm/transparent_hugepage/enabled'`"\n\n"
 	RES=$RES"\n\n"`ps aux | grep "cloud.*ip=192\.168\.2\.1"`
+	RES=$RES"\n\n"`cat /proc/meminfo | grep HugePage`
+	RES=$RES"\n\nclh memory:\n"`ssh_command_ip 192.168.2.2 'cat /proc/meminfo | grep HugePage'`
+	RES=$RES"\n\nclh PAGESIZE = "`ssh_command_ip 192.168.2.2 'getconf PAGESIZE'`
+	RES=$RES"\n\n"`ssh_command_ip 192.168.2.2 'grep "define label" /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64.cfg'`"\n"
     fi
     echo -e $RES >> $SUMMARY
 
-    RES="\n"`grep "define label" /home/amptest/ampere_spec2017/spec2017/config/ampere_aarch64.cfg`"\n"
-    echo -e $RES >> $SUMMARY
+    rm -rf $WORKLOADS_DIR/current
+    ln -s $LOG_DIR $WORKLOADS_DIR/current
 }
 
 get_string()
@@ -189,7 +197,7 @@ check_vms_online()
 
 ssh_command_ch()
 {
-    sshpass -p $PASS ssh $USER@192.168.249.2 -o "StrictHostKeyChecking no" $1
+    sshpass -p $PASS ssh $USER@192.168.2.2 -o "StrictHostKeyChecking no" $1
 }
 
 ssh_command_ip()
@@ -199,7 +207,7 @@ ssh_command_ip()
 
 scp_pull_ch()
 {
-    sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $USER@192.168.249.2:$1 $2
+    sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $USER@192.168.2.2:$1 $2
 }
 
 scp_pull_ip()
@@ -209,7 +217,7 @@ scp_pull_ip()
 
 scp_push_ch()
 {
-    sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $1 $USER@192.168.249.2:$2
+    sshpass -p $PASS scp -o "StrictHostKeyChecking no" -r $1 $USER@192.168.2.2:$2
 }
 
 scp_push_ip()

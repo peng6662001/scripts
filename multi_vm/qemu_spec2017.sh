@@ -45,16 +45,16 @@ one_spec2017_test()
 {
     addr=`get_string $1`
     let port=3333+$1
-    let pcpu=$1*2
-    let pcpu2=$pcpu+1
+    let pcpu=$1
+    let pcpu2=$pcpu+32
     
     KERNEL=`ssh_command $port 'uname -r'`
 
     SAVE_DIR=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/${KERNEL}"_"$addr
-    python ../cpu_affinity.py -s /tmp/qmp-test$addr $pcpu,$pcpu2
+    python ../cpu_affinity.py -s /tmp/qmp-test$addr {$pcpu,$pcpu2}
 
     if [ "$ACTION" == "copies_intrate" ];then
-        scp_push full_test.sh "/home/cloud/"
+        scp_push 3335 full_test.sh "/home/cloud/"
         ssh_command "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"
         ssh_command "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
         ssh_command "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"

@@ -17,7 +17,7 @@ create_disk()
     res=1
     while [ $res -ne 0 ];
     do
-        ssh_command ls
+        ssh_command 3335 ls
         res=$?
         sleep 1
     done
@@ -47,12 +47,12 @@ if [ $cpu_name == "altra" ];then
     perf stat -C 2 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,mem_access:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,inst_spec:G,inst_retired:G -I 1000 -x , -o $vm_csv_name &
 fi
 
-SAVE_DIR=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/`ssh_command 'uname -r'`"_single"
+SAVE_DIR=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/`ssh_command 3335 'uname -r'`"_single"
 
-ssh_command "sudo find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -maxdepth 2 -iname run -exec rm -rf {} \;"
-ssh_command "sudo echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled" 
+ssh_command 3335 "sudo find /home/amptest/ampere_spec2017/spec2017/benchspec/CPU -maxdepth 2 -iname run -exec rm -rf {} \;"
+ssh_command 3335 "sudo echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled" 
 if [ "$ACTION" == "copies_intrate" ];then
-    scp_push full_test.sh "/home/cloud/"
+    scp_push 3335 full_test.sh "/home/cloud/"
     ssh_command 3335 "sudo mv /home/cloud/full_test.sh /home/amptest/ampere_spec2017/"
     ssh_command 3335 "sudo chmod a+x /home/amptest/ampere_spec2017/full_test.sh"
     ssh_command 3335 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
