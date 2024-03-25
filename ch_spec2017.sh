@@ -10,7 +10,6 @@ fi
 
 SAVE_DIR=$LOG_DIR/$COPIES/clh
 DIR="COPY"`get_string $COPIES`
-vm_csv_name=$LOG_DIR/$DIR/clh_`echo $ACTION|sed 's/ /_/g'`/clh.csv
 
 ./ch_full.sh
 
@@ -25,7 +24,7 @@ if [ "$ACTION" == "copies_intrate" ];then
     ssh_command_ip 192.168.2.2 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh && sudo ./full_test.sh"
 else
     ssh_command_ip 192.168.2.2 "cd /home/amptest/ampere_spec2017/ && sudo rm -rf spec2017/result && sudo ./high_perf.sh"
-    start_perf
+    start_perf clh
     ssh_command_ip 192.168.2.2 "cd /home/amptest/ampere_spec2017/ && sudo ./run_spec2017.sh --iterations $ITER --copies $COPIES --$BUILD_OPT --action run $ACTION"
 fi
 

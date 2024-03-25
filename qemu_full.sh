@@ -109,8 +109,8 @@ qemu-system-aarch64 \
         -nographic \
         -machine virt,gic-version=max -enable-kvm\
         -bios /usr/share/edk2/aarch64/QEMU_EFI.silent.fd \
-        -cpu max -smp cpus=40 \
-        -m 128G \
+        -cpu max -smp cpus=2 \
+        -m 4G \
 	-qmp unix:/tmp/qmp-test2,server,nowait \
         -drive if=none,file=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_qemu.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0 \
         -drive if=none,file=$WORKLOADS_DIR/cloud_init_qemu.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1 \

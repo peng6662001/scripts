@@ -35,17 +35,12 @@ if [ $1 == "create_disk" ];then
 fi
 
 DIR="COPY"`get_string $COPIES`
-vm_csv_name=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/qemu.csv
 
 create_disk
-python cpu_affinity.py -s /tmp/qmp-test2 {2..41}
+#python cpu_affinity.py -s /tmp/qmp-test2 {2..41}
+python cpu_affinity.py -s /tmp/qmp-test2 {2,3}
 
-if [ $cpu_name == "one" ];then
-    perf stat -C 2 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,STALL_BACKEND_TLB:G,STALL_BACKEND_CACHE:G,STALL_BACKEND_MEM:G,mem_access:G,l1d_tlb:G,l1d_tlb_refill:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,rd80d:G,stall_slot_backend:G,op_spec:G,op_retired:G,STALL_BACKEND_RESOURCE:G -I 1000 -x , -o $vm_csv_name &
-fi
-if [ $cpu_name == "altra" ];then
-    perf stat -C 2 -e cycles:G,cycles:H,instructions:G,stall_backend:G,stall_frontend:G,mem_access:G,l2d_tlb:G,l2d_tlb_refill:G,dtlb_walk:G,inst_spec:G,inst_retired:G -I 1000 -x , -o $vm_csv_name &
-fi
+start_perf qemu
 
 SAVE_DIR=$LOG_DIR/$DIR/qemu_`echo $ACTION|sed 's/ /_/g'`/`ssh_command 3335 'uname -r'`"_single"
 

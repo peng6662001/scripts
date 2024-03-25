@@ -12,7 +12,6 @@ host_test()
 {
     DIR="COPY"`get_string $COPIES`
     SAVE_DIR=$LOG_DIR/$DIR/host_`echo $ACTION|sed 's/ /_/g'`/`uname -r`
-    csv_name=$LOG_DIR/$DIR/host_`echo $ACTION|sed 's/ /_/g'`/host.csv
     if [ "$ACTION" == "copies_intrate" ];then
         cp full_test.sh /home/amptest/ampere_spec2017/
     fi
@@ -24,13 +23,7 @@ host_test()
     rm -rf spec2017/$result_dir
     sudo ./high_perf.sh
 
-    if [ $cpu_name == "one" ];then
-        perf stat -C 2 -e cycles,instructions,stall_backend,stall_frontend,STALL_BACKEND_TLB,STALL_BACKEND_CACHE,STALL_BACKEND_MEM,mem_access,l1d_tlb,l1d_tlb_refill,l2d_tlb,l2d_tlb_refill,dtlb_walk,rd80d,stall_slot_backend,op_spec,op_retired,STALL_BACKEND_RESOURCE -I 1000 -x , -o $csv_name &
-    fi
-
-    if [ $cpu_name == "altra" ];then
-        perf stat -C 2 -e cycles,instructions,stall_backend,stall_frontend,mem_access,l2d_tlb,l2d_tlb_refill,dtlb_walk,inst_spec,inst_retired -I 1000 -x , -o $csv_name &
-    fi
+    start_perf host
     sudo echo $THP_CONFIG > /sys/kernel/mm/transparent_hugepage/enabled
     rm -rf "/home/amptest/ampere_spec2017/spec2017/result"
     if [ "$ACTION" == "copies_intrate" ];then
