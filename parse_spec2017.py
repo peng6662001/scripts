@@ -1,7 +1,7 @@
 #!/bin/python3
 import csv, sys, os
 import pandas as pd
-
+import zipfile
 import parse_perf
 
 full_list = {}
@@ -12,7 +12,6 @@ compat_data = True
 
 spec2017_cases = ['500.perlbench_r', '502.gcc_r', '505.mcf_r', '520.omnetpp_r', '523.xalancbmk_r',
                   '525.x264_r', '531.deepsjeng_r', '541.leela_r', '548.exchange2_r', '557.xz_r']
-
 
 def get_value(df, column ,name):
     if len(df[df['A'].str.contains(name)]) == 0:
@@ -198,6 +197,9 @@ def parse_spec2017_csv(pardir, f):
 
 
 dir_name = sys.argv[1]
+
+dir_name = os.path.realpath(dir_name)
+
 if not os.path.isdir(dir_name):
     print("Please provide a directory")
     exit(0)
@@ -256,6 +258,7 @@ def save_cases_result(spath):
     #cases_df['sum'] = cases_df.sum(axis=1)
     #cases_df['average'] = cases_df.mean(axis=1)
     cases_df[:10].to_csv(spath + '_compact.csv', encoding='utf-8')
+    zip_file.write(spath + "_compact.csv",compress_type=zipfile.ZIP_DEFLATED)
 
 
 clh_perf = None
@@ -368,10 +371,17 @@ else:
 print("spath = " + spath)
 full_df.round(2).to_csv(spath + '.csv', encoding='utf-8')
 
+
+zip_file = zipfile.ZipFile(spath + "_summary.zip",'w')
+zip_file.write(spath + '.csv',compress_type=zipfile.ZIP_DEFLATED)
+
 detail_df = pd.DataFrame(value_detail)
 detail_df.to_csv(spath + "_detail.csv", encoding='utf-8')
+zip_file.write(spath + "_detail.csv", compress_type=zipfile.ZIP_DEFLATED)
+zip_file.write(os.path.join(dir_name, "summary.txt"),compress_type=zipfile.ZIP_DEFLATED)
 
 if compat_data:
     save_cases_result(spath)
 
 print(full_df)
+zip_file.close()
