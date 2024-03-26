@@ -37,8 +37,8 @@ fi
 DIR="COPY"`get_string $COPIES`
 
 create_disk
-#python cpu_affinity.py -s /tmp/qmp-test2 {2..41}
-python cpu_affinity.py -s /tmp/qmp-test2 {2,3}
+python cpu_affinity.py -s /tmp/qmp-test2 {2..41}
+#python cpu_affinity.py -s /tmp/qmp-test2 {2,3}
 
 start_perf qemu
 
@@ -56,9 +56,7 @@ else
 fi
 
 scp_pull 3335 "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR
-if [ $GROUP -ne 1 ];then
-    killall perf
-fi
+killall perf
 
 record_info qemu
 ssh_command 3335 "sudo shutdown -h now"

@@ -30,9 +30,7 @@ fi
 
 scp_pull_ip 192.168.2.2 "/home/amptest/ampere_spec2017/spec2017/result" $SAVE_DIR
 
-if [ $GROUP -ne 1 ];then
-    killall perf
-fi
+killall perf
 record_info clh
 ssh_command_ip 192.168.2.2 "sudo shutdown -h now" 
 reset

@@ -258,7 +258,7 @@ def save_cases_result(spath):
     #cases_df['sum'] = cases_df.sum(axis=1)
     #cases_df['average'] = cases_df.mean(axis=1)
     cases_df[:10].to_csv(spath + '_compact.csv', encoding='utf-8')
-    zip_file.write(spath + "_compact.csv",compress_type=zipfile.ZIP_DEFLATED)
+    zip_file.write(spath + "_compact.csv",compress_type=zipfile.ZIP_DEFLATED,arcname=os.path.basename(spath + "_compact.csv"))
 
 
 clh_perf = None
@@ -373,12 +373,12 @@ full_df.round(2).to_csv(spath + '.csv', encoding='utf-8')
 
 
 zip_file = zipfile.ZipFile(spath + "_summary.zip",'w')
-zip_file.write(spath + '.csv',compress_type=zipfile.ZIP_DEFLATED)
+zip_file.write(spath + '.csv',compress_type=zipfile.ZIP_DEFLATED,arcname=os.path.basename(spath+'.csv'))
 
 detail_df = pd.DataFrame(value_detail)
 detail_df.to_csv(spath + "_detail.csv", encoding='utf-8')
-zip_file.write(spath + "_detail.csv", compress_type=zipfile.ZIP_DEFLATED)
-zip_file.write(os.path.join(dir_name, "summary.txt"),compress_type=zipfile.ZIP_DEFLATED)
+zip_file.write(spath + "_detail.csv", compress_type=zipfile.ZIP_DEFLATED,arcname=os.path.basename(spath+'_detail.csv'))
+zip_file.write(os.path.join(dir_name, "summary.txt"),compress_type=zipfile.ZIP_DEFLATED,arcname=os.path.basename(os.path.join(dir_name, "summary.txt")))
 
 if compat_data:
     save_cases_result(spath)
