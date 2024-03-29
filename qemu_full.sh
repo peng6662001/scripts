@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 source command.sh
 if [ ! -d $WORKLOADS_DIR ];then
@@ -41,7 +41,7 @@ get_source() {
 
 	return 0
 }
-
+:<<!
 BIOS_BIN="edk2/Build/ArmVirtQemu-AARCH64/RELEASE_GCC5/FV/QEMU_EFI.fd"
 # build edk2 bios
 if [ ! -f $BIOS_BIN ]; then
@@ -52,7 +52,7 @@ if [ ! -f $BIOS_BIN ]; then
 	../uefi-tools/edk2-build.sh -e . armvirtqemu64 || exit 1
 	popd
 fi
-
+!
 # build qemu
 QEMU_BIN="qemu/build/qemu-system-aarch64"
 if [ ! -f $QEMU_BIN ]; then
@@ -113,7 +113,7 @@ qemu-system-aarch64 \
         -m 128G \
 	-qmp unix:/tmp/qmp-test2,server,nowait \
         -drive if=none,file=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_qemu.raw,format=raw,id=hd1 -device virtio-blk-pci,drive=hd1,bootindex=0 \
-        -drive if=none,file=$WORKLOADS_DIR/cloud_init_qemu.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1 \
+        -drive if=none,file=$WORKLOADS_DIR/cloudinit/cloudinit_2.img,format=raw,id=hd2 -device virtio-blk-pci,drive=hd2,bootindex=1 \
         -drive if=none,file=$WORKLOADS_DIR/spec2017_disk_qemu.qcow2,format=qcow2,id=hd3 -device virtio-blk-pci,drive=hd3,bootindex=2 \
         -net nic -net user,hostfwd=tcp::3335-:22 & 
 	

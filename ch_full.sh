@@ -87,7 +87,7 @@ $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
         --memory size=128G \
         --kernel $WORKLOADS_DIR/CLOUDHV_EFI.fd \
         --disk path=$WORKLOADS_DIR/Fedora-Cloud-Base-38-1.6.aarch64_clh.raw \
-        --disk path=$WORKLOADS_DIR/cloud_init_clh.img,iommu=on \
+        --disk path=$WORKLOADS_DIR/cloudinit/cloudinit_net_2.img,iommu=on \
         --disk path=$WORKLOADS_DIR/spec2017_disk_clh.qcow2 \
         --vsock cid=3,socket=/tmp/vsock \
 	--serial off --console off \

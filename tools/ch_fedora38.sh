@@ -12,5 +12,5 @@ $WORKLOADS_DIR/cloud-hypervisor/target/release/cloud-hypervisor \
         --disk path=$WORKLOADS_DIR/cloudinit/cloudinit_net_2.img,iommu=on \
         --disk path=$WORKLOADS_DIR/spec2017_disk.qcow2 \
         --vsock cid=2,socket=/tmp/vsock_2 \
-        --serial off --console off \
+        --serial off --console tty \
         --net id=net_2,tap=,mac=12:34:56:78:90:02,ip=192.168.2.1,mask=255.255.255.0
